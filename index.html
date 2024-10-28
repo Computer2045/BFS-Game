@@ -255,7 +255,6 @@
             border-radius: 4px;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: repeat(8, 1fr);
@@ -277,7 +276,6 @@
             }
         }
 
-        /* Cool background gradient */
         .background-gradient {
             position: fixed;
             top: 0;
@@ -358,315 +356,273 @@
         <div id="grid" class="grid"></div>
     </div>
 
+    <script>
+        // Grid configuration
+        const GRID_ROWS = 12;
+        const GRID_COLS = 12;
+        const WALL_PROBABILITY = 0.3;
 
+        // Cell states
+        const EMPTY = 'empty';
+        const WALL = 'wall';
+        const START = 'start';
+        const END = 'end';
+        const VISITED = 'visited';
+        const PATH = 'path';
 
+        // Game state
+        let grid = [];
+        let startCell = null;
+        let endCell = null;
+        let isSettingStart = false;
+        let isSettingEnd = false;
+        let isRunning = false;
 
-// Grid configuration
-const GRID_ROWS = 12;
-const GRID_COLS = 12;
-const WALL_PROBABILITY = 0.3;
+        // Initialize the grid
+        function initializeGrid() {
+            const gridElement = document.getElementById('grid');
+            gridElement.innerHTML = '';
+            grid = [];
 
-// Cell states
-const EMPTY = 'empty';
-const WALL = 'wall';
-const START = 'start';
-const END = 'end';
-const VISITED = 'visited';
-const PATH = 'path';
+            for (let row = 0; row < GRID_ROWS; row++) {
+                const gridRow = [];
+                for (let col = 0; col < GRID_COLS; col++) {
+                    const cell = createCell(row, col);
+                    gridRow.push({
+                        element: cell,
+                        row,
+                        col,
+                        state: EMPTY,
+                        visited: false,
+                        parent: null,
+                        stepNumber: 0
+                    });
+                    gridElement.appendChild(cell);
+                }
+                grid.push(gridRow);
+            }
+        }
 
-// Game state
-let grid = [];
-let startCell = null;
-let endCell = null;
-let isSettingStart = false;
-let isSettingEnd = false;
-let isRunning = false;
-
-// Initialize the grid
-function initializeGrid() {
-    const gridElement = document.getElementById('grid');
-    gridElement.innerHTML = '';
-    grid = [];
-
-    for (let row = 0; row < GRID_ROWS; row++) {
-        const gridRow = [];
-        for (let col = 0; col < GRID_COLS; col++) {
-            const cell = createCell(row, col);
-            gridRow.push({
-                element: cell,
-                row,
-                col,
-                state: EMPTY,
-                visited: false,
-                parent: null,
-                stepNumber: 0
+        // Create a cell element
+        function createCell(row, col) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            
+            cell.addEventListener('click', () => handleCellClick(row, col));
+            cell.addEventListener('mouseenter', () => {
+                if (!isRunning) {
+                    updateStatus(`Cell (${row}, ${col})`);
+                }
             });
-            gridElement.appendChild(cell);
+            
+            return cell;
         }
-        grid.push(gridRow);
-    }
-}
 
-// Create a cell element
-function createCell(row, col) {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.dataset.row = row;
-    cell.dataset.col = col;
-    
-    cell.addEventListener('click', () => handleCellClick(row, col));
-    cell.addEventListener('mouseenter', () => {
-        if (!isRunning) {
-            updateStatus(`Cell (${row}, ${col})`);
+        // Generate random maze
+        function generateMaze() {
+            resetGrid();
+            grid.forEach(row => {
+                row.forEach(cell => {
+                    if (Math.random() < WALL_PROBABILITY) {
+                        setCellState(cell, WALL);
+                    }
+                });
+            });
+            updateStatus('Maze generated! Set start and end points.');
         }
-    });
-    
-    return cell;
-}
 
-// Generate random maze
-function generateMaze() {
-    resetGrid();
-    grid.forEach(row => {
-        row.forEach(cell => {
-            if (Math.random() < WALL_PROBABILITY) {
+        // Set cell state and update visualization
+        function setCellState(cell, state) {
+            cell.state = state;
+            cell.element.className = `cell ${state}`;
+        }
+
+        // Handle cell clicks
+        function handleCellClick(row, col) {
+            if (isRunning) return;
+            
+            const cell = grid[row][col];
+            
+            if (isSettingStart) {
+                if (startCell) setCellState(startCell, EMPTY);
+                startCell = cell;
+                setCellState(cell, START);
+                isSettingStart = false;
+                document.getElementById('setStart').classList.remove('active');
+                updateStatus('Start point set! Now set an end point.');
+            } else if (isSettingEnd) {if (endCell) setCellState(endCell, EMPTY);
+                endCell = cell;
+                setCellState(cell, END);
+                isSettingEnd = false;
+                document.getElementById('setEnd').classList.remove('active');
+                updateStatus('End point set! Click "Run BFS" to find the path.');
+            } else if (cell.state === EMPTY) {
                 setCellState(cell, WALL);
+            } else if (cell.state === WALL) {
+                setCellState(cell, EMPTY);
             }
-        });
-    });
-    updateStatus('Maze generated! Set start and end points.');
-}
-
-// Set cell state and update visualization
-function setCellState(cell, state) {
-    cell.state = state;
-    cell.element.className = `cell ${state}`;
-}
-
-// Handle cell clicks
-function handleCellClick(row, col) {
-    if (isRunning) return;
-    
-    const cell = grid[row][col];
-    
-    if (isSettingStart) {
-        if (startCell) setCellState(startCell, EMPTY);
-        startCell = cell;
-        setCellState(cell, START);
-        isSettingStart = false;
-        document.getElementById('setStart').classList.remove('active');
-        updateStatus('Start point set! Now set an end point.');
-    } else if (isSettingEnd) {
-        if (endCell) setCellState(endCell, EMPTY);
-        endCell = cell;
-        setCellState(cell, END);
-        isSettingEnd = false;
-        document.getElementById('setEnd').classList.remove('active');
-        updateStatus('End point set! Click "Run BFS" to find the path.');
-    } else if (cell.state === EMPTY) {
-        setCellState(cell, WALL);
-    } else if (cell.state === WALL) {
-        setCellState(cell, EMPTY);
-    }
-}
-
-// BFS Implementation
-async function runBFS() {
-    if (!startCell || !endCell) {
-        updateStatus('Please set both start and end points first!');
-        return;
-    }
-    
-    isRunning = true;
-    updateStatus('Running BFS...');
-    
-    const queue = [[startCell]];
-    const visited = new Set();
-    let stepCount = 0;
-    
-    while (queue.length > 0) {
-        const path = queue.shift();
-        const current = path[path.length - 1];
-        
-        if (current === endCell) {
-            await visualizePath(path);
-            isRunning = false;
-            updateStatus('Path found! 🎉');
-            return;
         }
-        
-        if (!visited.has(`${current.row},${current.col}`)) {
-            visited.add(`${current.row},${current.col}`);
-            
-            if (current !== startCell && current !== endCell) {
-                setCellState(current, VISITED);
-                current.element.innerHTML = `<span class="step-number">${++stepCount}</span>`;
-                await sleep(50); // Animation delay
+
+        // BFS Implementation
+        async function runBFS() {
+            if (!startCell || !endCell) {
+                updateStatus('Please set both start and end points first!');
+                return;
             }
             
-            // Get neighboring cells
-            const neighbors = getNeighbors(current);
+            isRunning = true;
+            updateStatus('Running BFS...');
             
-            for (const neighbor of neighbors) {
-                if (!visited.has(`${neighbor.row},${neighbor.col}`)) {
-                    const newPath = [...path, neighbor];
-                    queue.push(newPath);
-                    neighbor.parent = current;
+            const queue = [[startCell]];
+            const visited = new Set();
+            let stepCount = 0;
+            
+            while (queue.length > 0) {
+                const path = queue.shift();
+                const current = path[path.length - 1];
+                
+                if (current === endCell) {
+                    await visualizePath(path);
+                    isRunning = false;
+                    updateStatus('Path found! 🎉');
+                    return;
+                }
+                
+                if (!visited.has(`${current.row},${current.col}`)) {
+                    visited.add(`${current.row},${current.col}`);
+                    
+                    if (current !== startCell && current !== endCell) {
+                        setCellState(current, VISITED);
+                        current.element.innerHTML = `<span class="step-number">${++stepCount}</span>`;
+                        await sleep(50); // Animation delay
+                    }
+                    
+                    // Get neighboring cells
+                    const neighbors = getNeighbors(current);
+                    
+                    for (const neighbor of neighbors) {
+                        if (!visited.has(`${neighbor.row},${neighbor.col}`)) {
+                            const newPath = [...path, neighbor];
+                            queue.push(newPath);
+                            neighbor.parent = current;
+                        }
+                    }
                 }
             }
+            
+            isRunning = false;
+            updateStatus('No path found! 😢');
         }
-    }
-    
-    isRunning = false;
-    updateStatus('No path found! 😢');
-}
 
-// Get valid neighboring cells
-function getNeighbors(cell) {
-    const neighbors = [];
-    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // Up, Down, Left, Right
-    
-    for (const [dx, dy] of directions) {
-        const newRow = cell.row + dx;
-        const newCol = cell.col + dy;
-        
-        if (newRow >= 0 && newRow < GRID_ROWS && 
-            newCol >= 0 && newCol < GRID_COLS) {
-            const neighbor = grid[newRow][newCol];
-            if (neighbor.state !== WALL) {
-                neighbors.push(neighbor);
+        // Get valid neighboring cells
+        function getNeighbors(cell) {
+            const neighbors = [];
+            const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // Up, Down, Left, Right
+            
+            for (const [dx, dy] of directions) {
+                const newRow = cell.row + dx;
+                const newCol = cell.col + dy;
+                
+                if (newRow >= 0 && newRow < GRID_ROWS && 
+                    newCol >= 0 && newCol < GRID_COLS) {
+                    const neighbor = grid[newRow][newCol];
+                    if (neighbor.state !== WALL) {
+                        neighbors.push(neighbor);
+                    }
+                }
+            }
+            
+            return neighbors;
+        }
+
+        // Visualize the found path
+        async function visualizePath(path) {
+            for (let i = 1; i < path.length - 1; i++) {
+                const cell = path[i];
+                setCellState(cell, PATH);
+                
+                // Add direction arrow
+                const prev = path[i - 1];
+                const next = path[i + 1];
+                
+                const arrow = document.createElement('i');
+                arrow.className = 'fas arrow';
+                
+                if (next.row < cell.row) arrow.className += ' fa-arrow-up arrow-up';
+                else if (next.row > cell.row) arrow.className += ' fa-arrow-down arrow-down';
+                else if (next.col < cell.col) arrow.className += ' fa-arrow-left arrow-left';
+                else if (next.col > cell.col) arrow.className += ' fa-arrow-right arrow-right';
+                
+                cell.element.appendChild(arrow);
+                await sleep(100); // Animation delay
             }
         }
-    }
-    
-    return neighbors;
-}
 
-// Visualize the found path
-async function visualizePath(path) {
-    for (let i = 1; i < path.length - 1; i++) {
-        const cell = path[i];
-        setCellState(cell, PATH);
-        
-        // Add direction arrow
-        const prev = path[i - 1];
-        const next = path[i + 1];
-        
-        const arrow = document.createElement('i');
-        arrow.className = 'fas arrow';
-        
-        if (next.row < cell.row) arrow.className += ' fa-arrow-up arrow-up';
-        else if (next.row > cell.row) arrow.className += ' fa-arrow-down arrow-down';
-        else if (next.col < cell.col) arrow.className += ' fa-arrow-left arrow-left';
-        else if (next.col > cell.col) arrow.className += ' fa-arrow-right arrow-right';
-        
-        cell.element.appendChild(arrow);
-        await sleep(100); // Animation delay
-    }
-}
-
-// Helper function for animations
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Reset the grid
-function resetGrid() {
-    grid.forEach(row => {
-        row.forEach(cell => {
-            setCellState(cell, EMPTY);
-            cell.element.innerHTML = '';
-            cell.visited = false;
-            cell.parent = null;
-            cell.stepNumber = 0;
-        });
-    });
-    startCell = null;
-    endCell = null;
-    isSettingStart = false;
-    isSettingEnd = false;
-    isRunning = false;
-    updateStatus('Grid reset! Select start and end points or generate a maze.');
-}
-
-// Update status message
-function updateStatus(message) {
-    document.getElementById('status').textContent = message;
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    initializeGrid();
-    
-    document.getElementById('generateMaze').addEventListener('click', generateMaze);
-    
-    document.getElementById('setStart').addEventListener('click', () => {
-        if (!isRunning) {
-            isSettingStart = true;
-            isSettingEnd = false;
-            document.getElementById('setStart').classList.add('active');
-            document.getElementById('setEnd').classList.remove('active');
-            updateStatus('Select a starting point...');
+        // Helper function for animations
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
-    });
-    
-    document.getElementById('setEnd').addEventListener('click', () => {
-        if (!isRunning) {
-            isSettingEnd = true;
+
+        // Reset the grid
+        function resetGrid() {
+            grid.forEach(row => {
+                row.forEach(cell => {
+                    setCellState(cell, EMPTY);
+                    cell.element.innerHTML = '';
+                    cell.visited = false;
+                    cell.parent = null;
+                    cell.stepNumber = 0;
+                });
+            });
+            startCell = null;
+            endCell = null;
             isSettingStart = false;
-            document.getElementById('setEnd').classList.add('active');
-            document.getElementById('setStart').classList.remove('active');
-            updateStatus('Select an ending point...');
+            isSettingEnd = false;
+            isRunning = false;
+            updateStatus('Grid reset! Select start and end points or generate a maze.');
         }
-    });
-    
-    document.getElementById('startBFS').addEventListener('click', () => {
-        if (!isRunning) {
-            runBFS();
+
+        // Update status message
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
         }
-    });
-    
-    document.getElementById('reset').addEventListener('click', resetGrid);
-});
 
-
-
-
-
-
-  
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGrid();
+            
+            document.getElementById('generateMaze').addEventListener('click', generateMaze);
+            
+            document.getElementById('setStart').addEventListener('click', () => {
+                if (!isRunning) {
+                    isSettingStart = true;
+                    isSettingEnd = false;
+                    document.getElementById('setStart').classList.add('active');
+                    document.getElementById('setEnd').classList.remove('active');
+                    updateStatus('Select a starting point...');
+                }
+            });
+            
+            document.getElementById('setEnd').addEventListener('click', () => {
+                if (!isRunning) {
+                    isSettingEnd = true;
+                    isSettingStart = false;
+                    document.getElementById('setEnd').classList.add('active');
+                    document.getElementById('setStart').classList.remove('active');
+                    updateStatus('Select an ending point...');
+                }
+            });
+            
+            document.getElementById('startBFS').addEventListener('click', () => {
+                if (!isRunning) {
+                    runBFS();
+                }
+            });
+            
+            document.getElementById('reset').addEventListener('click', resetGrid);
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
