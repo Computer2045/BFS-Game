@@ -283,6 +283,9 @@
     </style>
 </head>
 
+
+
+
 <body>
     <div id="app">
         <div class="stars" id="stars"></div>
@@ -307,7 +310,6 @@
     </div>
 
     <script>
-        // Create animated star background
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const numStars = 100;
@@ -316,14 +318,9 @@
                 const star = document.createElement('div');
                 star.className = 'star';
                 
-                // Random position
                 const x = Math.random() * 100;
                 const y = Math.random() * 100;
-                
-                // Random size
                 const size = Math.random() * 2 + 1;
-                
-                // Random twinkle duration
                 const duration = Math.random() * 3 + 2;
                 
                 star.style.cssText = `
@@ -345,8 +342,8 @@
                 this.choicesContainer = document.getElementById('choices');
                 this.mazeContainer = document.getElementById('maze-container');
                 this.progressBar = document.getElementById('progress');
+                this.isVisualizing = false;
                 
-                // Handle ARIA image
                 const ariaImg = document.querySelector('#aria-container img');
                 ariaImg.onerror = () => {
                     console.warn('ARIA.png not found, falling back to placeholder');
@@ -363,25 +360,61 @@
                     choices: ["Me conte mais!", "Como é diferente do DFS?"]
                 },
                 {
-                    text: "Diferente do DFS que mergulha fundo em um caminho, o BFS explora todos os caminhos possíveis na distância atual antes de avançar. Imagine que você está em uma sala escura e enviando robôs em todas as direções na mesma velocidade!",
-                    choices: ["Mostre um exemplo!", "O que o torna especial?"],
+                    text: "A principal diferença é a forma de exploração. Enquanto o DFS mergulha fundo em um caminho até não poder mais avançar, o BFS é mais metódico: ele explora TODOS os caminhos possíveis na mesma distância antes de ir mais longe.",
+                    choices: ["Isso parece mais organizado!", "Por que isso é útil?"]
+                },
+                {
+                    text: "Exatamente! É muito organizado e isso traz uma garantia importante: sempre encontramos o caminho mais curto primeiro! Imagine enviar robôs exploradores em todas as direções com a mesma velocidade - o primeiro a chegar ao objetivo usou o menor caminho!",
+                    choices: ["Como isso funciona na prática?", "Mostre um exemplo!"],
                     showMaze: true
                 },
                 {
-                    text: "Vamos ver o BFS em ação! Observe como ele explora todas as células vizinhas antes de passar para o próximo nível. As células rosa são os nós visitados, e o brilho ciano mostra as células na fila esperando para serem exploradas.",
-                    choices: ["Iniciar visualização", "O que é uma fila?"]
+                    text: "Vou mostrar um exemplo prático! Neste labirinto, o quadrado verde é o início, o vermelho é o objetivo, e as paredes cinzas são obstáculos. Vamos ver como o BFS explora esse espaço de forma sistemática.",
+                    choices: ["Como funciona a exploração?", "Iniciar visualização"]
                 },
                 {
-                    text: "A fila é crucial para o BFS! É como uma fila de supermercado - primeiro a entrar, primeiro a sair. Adicionamos todas as células vizinhas à fila e as exploramos na ordem em que foram adicionadas. Isso garante que exploremos nível por nível.",
-                    choices: ["Continuar visualização", "Por que usar uma fila?"]
+                    text: "O BFS usa uma estrutura chamada 'fila' para garantir a exploração por níveis. Primeiro, exploramos todas as células vizinhas do ponto inicial. Estas células ficam com brilho ciano enquanto esperam na fila. As células rosa já foram visitadas.",
+                    choices: ["Entendi! Vamos ver!", "Explique mais sobre a fila"]
                 },
                 {
-                    text: "A fila garante que encontremos o caminho mais curto! Como exploramos todas as possibilidades em cada nível antes de ir mais fundo, a primeira vez que alcançamos o objetivo é garantido ser a rota mais curta até lá.",
-                    choices: ["Incrível! O que mais?", "Mostrar outro exemplo"]
+                    text: "A fila funciona como uma fila de supermercado: primeiro a entrar, primeiro a sair (FIFO - First In, First Out). Quando visitamos uma célula, adicionamos todos seus vizinhos não visitados à fila. Isso garante que exploremos em ordem de distância!",
+                    choices: ["Iniciar visualização", "Por que usar FIFO?"]
+                },
+                {
+                    text: "O princípio FIFO é crucial! Como adicionamos e exploramos os vizinhos em ordem, naturalmente visitamos todas as células a uma distância X antes de qualquer célula a uma distância X+1. É isso que garante encontrar o menor caminho!",
+                    choices: ["Começar demonstração!", "Mais detalhes sobre isso"]
+                },
+                {
+                    text: "Observe atentamente a animação: as células em ciano são a 'fronteira' da nossa exploração, todas à mesma distância do início. É como uma onda se expandindo uniformemente, garantindo que quando alcançamos o objetivo, é pelo menor caminho possível!",
+                    choices: ["Iniciar visualização", "Voltar à explicação anterior"],
+                    startVisualization: true
+                },
+                {
+                    text: "Incrível, não é? Viu como a exploração aconteceu em 'ondas'? Cada nova onda de células visitadas estava exatamente um passo mais distante do início que a anterior. Isso é a beleza do BFS!",
+                    choices: ["Quais são as aplicações?", "Ver visualização novamente"]
+                },
+                {
+                    text: "O BFS é usado em muitas aplicações práticas: encontrar menor caminho em redes sociais (grau de conexão entre pessoas), GPS navegação, roteamento de pacotes na internet, e até em jogos para movimentação de personagens!",
+                    choices: ["Mais aplicações", "Próximo passo"]
+                },
+                {
+                    text: "Em jogos, por exemplo, quando você clica para seu personagem se mover, frequentemente é um BFS que calcula o melhor caminho, evitando obstáculos. Em redes sociais, ele encontra suas conexões mais próximas primeiro!",
+                    choices: ["Resumo do BFS", "Continuar"]
+                },
+                {
+                    text: "Resumindo: BFS é um algoritmo que explora de forma sistemática, em ondas, garantindo encontrar o menor caminho. Usa uma fila (FIFO) para manter a ordem de exploração, e é ideal quando precisamos da solução mais próxima primeiro.",
+                    choices: ["Rever visualização", "Próxima lição"]
+                },
+                {
+                    text: "Você completou a lição sobre BFS! Agora você entende como funciona a busca em largura e por que ela é tão importante para encontrar caminhos mais curtos.",
+                    choices: ["Rever BFS", "Aprender sobre GBFS"],
+                    isFinal: true
                 }
             ];
 
-            initializeDialog() {
+
+
+initializeDialog() {
                 this.showDialog(0);
                 this.createMaze();
             }
@@ -395,7 +428,7 @@
                     const button = document.createElement('button');
                     button.className = 'choice-btn';
                     button.textContent = choice;
-                    button.onclick = () => this.makeChoice(index);
+                    button.onclick = () => this.makeChoice(index, step);
                     this.choicesContainer.appendChild(button);
                 });
 
@@ -411,13 +444,56 @@
                 this.progressBar.style.width = `${progress}%`;
             }
 
-            makeChoice(choiceIndex) {
-                if (this.currentStep < this.dialog.length - 1) {
-                    this.showDialog(this.currentStep + 1);
-                    if (this.currentStep === 2) {
+            makeChoice(choiceIndex, currentStep) {
+                if (this.isVisualizing) return; // Prevent interactions during visualization
+
+                const currentDialog = this.dialog[currentStep];
+
+                // Handle final dialog choices
+                if (currentDialog.isFinal) {
+                    if (choiceIndex === 0) {
+                        // Reset to review BFS
+                        this.resetVisualization();
+                        this.showDialog(0);
+                    } else {
+                        // Transition to GBFS lesson
+                        window.location.href = 'Lesson1_5.html';
+                    }
+                    return;
+                }
+
+                // Handle visualization requests
+                if (currentDialog.choices[choiceIndex].toLowerCase().includes('visualização')) {
+                    if (currentDialog.startVisualization) {
                         this.startBFSVisualization();
+                        return;
+                    }
+                    // If they request to see visualization again in later dialogs
+                    if (this.currentStep > 8) {
+                        this.resetVisualization();
+                        this.showDialog(7); // Return to pre-visualization dialog
+                        return;
                     }
                 }
+
+                // Normal dialog progression
+                if (this.currentStep < this.dialog.length - 1) {
+                    this.showDialog(this.currentStep + 1);
+                }
+            }
+
+            resetVisualization() {
+                this.isVisualizing = false;
+                const cells = document.querySelectorAll('.maze-cell');
+                cells.forEach(cell => {
+                    cell.classList.remove('visited', 'queue', 'current');
+                    if (!cell.classList.contains('wall') && 
+                        !cell.classList.contains('start') && 
+                        !cell.classList.contains('end')) {
+                        cell.classList.add('path');
+                    }
+                });
+                this.mazeContainer.style.display = 'block';
             }
 
             createMaze() {
@@ -447,12 +523,18 @@
             }
 
             async startBFSVisualization() {
+                if (this.isVisualizing) return;
+                this.isVisualizing = true;
+                
+                // Reset the visualization state first
+                this.resetVisualization();
+                
                 const cells = document.querySelectorAll('.maze-cell');
                 const size = 8;
                 const queue = [[0, 0]];
                 const visited = new Set();
                 
-                while (queue.length > 0) {
+                while (queue.length > 0 && this.isVisualizing) {
                     const [row, col] = queue.shift();
                     const index = row * size + col;
                     
@@ -460,7 +542,10 @@
                         cells[index].classList.add('visited');
                         visited.add(index);
                         
+                        // Highlight current cell
+                        cells[index].classList.add('current');
                         await new Promise(resolve => setTimeout(resolve, 300));
+                        cells[index].classList.remove('current');
                         
                         const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
                         for (const [dr, dc] of directions) {
@@ -468,13 +553,21 @@
                             const newCol = col + dc;
                             const newIndex = newRow * size + newCol;
                             
-                            if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size && 
-                                !cells[newIndex].classList.contains('wall') && !visited.has(newIndex)) {
+                            if (newRow >= 0 && newRow < size && 
+                                newCol >= 0 && newCol < size && 
+                                !cells[newIndex].classList.contains('wall') && 
+                                !visited.has(newIndex)) {
                                 queue.push([newRow, newCol]);
                                 cells[newIndex].classList.add('queue');
                             }
                         }
                     }
+                }
+
+                this.isVisualizing = false;
+                // After visualization completes, progress dialog if not in review mode
+                if (this.currentStep === 7) {
+                    setTimeout(() => this.showDialog(8), 1000);
                 }
             }
         }
