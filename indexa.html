@@ -225,6 +225,9 @@
         requestAnimationFrame(drawBackground);
     }
 
+    // Keep track of visited cells
+    const visited = new Set();
+
     function drawMaze() {
         mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
 
@@ -247,11 +250,22 @@
                     mazeCtx.fillStyle = gradient;
                     mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
                     
-                    // Add subtle glow effect to walls
                     mazeCtx.shadowColor = 'rgba(255, 158, 205, 0.5)';
                     mazeCtx.shadowBlur = 10;
                 } else {
                     mazeCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                    mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
+                }
+
+                // Draw visited cells
+                if (visited.has(`${y},${x}`)) {
+                    const gradient = mazeCtx.createRadialGradient(
+                        cellX + cellSize/2, cellY + cellSize/2, 0,
+                        cellX + cellSize/2, cellY + cellSize/2, cellSize
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 158, 205, 0.6)');
+                    gradient.addColorStop(1, 'rgba(255, 158, 205, 0.2)');
+                    mazeCtx.fillStyle = gradient;
                     mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
                 }
                 
@@ -261,54 +275,45 @@
         }
     }
 
-    async function depthFirstSearch() {
+    async function depthFirstSearch(row, col) {
+        // Check if position is valid
+        if (row < 0 || row >= maze.length || col < 0 || col >= maze[0].length) {
+            return;
+        }
+        
+        // Check if wall or already visited
+        if (maze[row][col] === 1 || visited.has(`${row},${col}`)) {
+            return;
+        }
+
+        // Mark as visited
+        visited.add(`${row},${col}`);
+        
+        // Add particle effect at current position
         const cellSize = 40;
         const offsetX = (mazeCanvas.width - maze[0].length * cellSize) / 2;
         const offsetY = (mazeCanvas.height - maze.length * cellSize) / 2;
-        
-        const stack = [[1, 1]];
-        const visited = new Set();
-        visited.add('1-1');
+        const cellX = offsetX + col * cellSize;
+        const cellY = offsetY + row * cellSize;
 
-        while (stack.length > 0) {
-            const [x, y] = stack.pop();
-            const cellX = offsetX + x * cellSize;
-            const cellY = offsetY + y * cellSize;
-
-            // Create glowing effect for visited cells
-            const gradient = mazeCtx.createRadialGradient(
-                cellX + cellSize/2, cellY + cellSize/2, 0,
-                cellX + cellSize/2, cellY + cellSize/2, cellSize
-            );
-            gradient.addColorStop(0, 'rgba(255, 158, 205, 0.6)');
-            gradient.addColorStop(1, 'rgba(255, 158, 205, 0.2)');
-            mazeCtx.fillStyle = gradient;
-            mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
-
-            // Add particle effect at current position
-            for (let i = 0; i < 5; i++) {
-                const particle = new Particle();
-                particle.x = cellX + cellSize/2;
-                particle.y = cellY + cellSize/2;
-                particles.push(particle);
-            }
-
-            await new Promise(r => setTimeout(r, 100));
-
-            for (const [dx, dy] of [[0, 1], [-1, 0], [0, -1], [1, 0]]) {
-                const newX = x + dx;
-                const newY = y + dy;
-                if (
-                    newX >= 0 && newX < maze[0].length && 
-                    newY >= 0 && newY < maze.length &&
-                    maze[newY][newX] === 0 && 
-                    !visited.has(`${newX}-${newY}`)
-                ) {
-                    stack.push([newX, newY]);
-                    visited.add(`${newX}-${newY}`);
-                }
-            }
+        for (let i = 0; i < 5; i++) {
+            const particle = new Particle();
+            particle.x = cellX + cellSize/2;
+            particle.y = cellY + cellSize/2;
+            particles.push(particle);
         }
+        
+        // Redraw maze to show progress
+        drawMaze();
+        
+        // Add delay to visualize the search
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Try all four directions (up, right, down, left)
+        await depthFirstSearch(row - 1, col); // Up
+        await depthFirstSearch(row, col + 1); // Right
+        await depthFirstSearch(row + 1, col); // Down
+        await depthFirstSearch(row, col - 1); // Left
     }
 
     const dialogues = [
@@ -361,7 +366,9 @@
         if (dialogue.showVisualization) {
             drawMaze();
             if (dialogue.animate === 'depthFirstSearch') {
-                depthFirstSearch();
+                // Clear previous visit history when starting new animation
+                visited.clear();
+                depthFirstSearch(1, 1);
             }
         } else {
             mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
