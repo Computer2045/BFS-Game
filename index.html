@@ -102,7 +102,7 @@
             height: 40px;
             border: 1px solid #333;
             margin: 2px;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
 
         #dialog-overlay {
@@ -204,8 +204,25 @@
             background: #ff0000;
             box-shadow: 0 0 10px #ff0000;
         }
+
+        @media (max-width: 1024px) {
+            .maze-cell {
+                width: 30px;
+                height: 30px;
+                margin: 1px;
+            }
+        }
+
+        @media screen and (min-width: 2560px) {
+            .maze-cell {
+                width: 50px;
+                height: 50px;
+                margin: 3px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="app">
         <div class="stars" id="stars"></div>
@@ -238,43 +255,6 @@
                 this.mazeContainer = document.getElementById('maze-container');
                 this.progressBar = document.getElementById('progress');
                 this.isVisualizing = false;
-                this.maze = null;
-                this.MAZE_SIZE = 8;
-                
-                // Initialize components
-                this.initializeStars();
-                this.setupAriaImage();
-                this.initializeDialog();
-                this.createMaze();
-            }
-
-            initializeStars() {
-                const starsContainer = document.getElementById('stars');
-                const numStars = 100;
-                
-                for (let i = 0; i < numStars; i++) {
-                    const star = document.createElement('div');
-                    star.className = 'star';
-                    star.style.cssText = `
-                        left: ${Math.random() * 100}%;
-                        top: ${Math.random() * 100}%;
-                        width: ${Math.random() * 2 + 1}px;
-                        height: ${Math.random() * 2 + 1}px;
-                        --duration: ${Math.random() * 3 + 2}s;
-                    `;
-                    starsContainer.appendChild(star);
-                }
-            }
-
-            setupAriaImage() {
-                const ariaImg = document.querySelector('#aria-container img');
-                ariaImg.onerror = () => {
-                    console.warn('ARIA.png not found, falling back to placeholder');
-                    ariaImg.src = '/api/placeholder/500/800';
-                };
-            }
-
-            createMaze() {
                 this.maze = [
                     [0, 0, 0, 1, 0, 0, 0, 0],
                     [1, 1, 0, 1, 0, 1, 1, 0],
@@ -285,129 +265,187 @@
                     [0, 0, 0, 0, 0, 0, 0, 0],
                     [0, 0, 0, 1, 0, 0, 'E', 0]
                 ];
-
-                this.mazeContainer.innerHTML = '';
                 
-                for (let i = 0; i < this.maze.length; i++) {
-                    const row = document.createElement('div');
-                    row.className = 'maze-row';
+                this.setupPage();
+            }
+
+            setupPage() {
+                // Handle ARIA image loading
+                const ariaImg = document.querySelector('#aria-container img');
+                ariaImg.onerror = () => {
+                    console.warn('ARIA.png not found, falling back to placeholder');
+                    ariaImg.src = '/api/placeholder/500/800';
+                };
+                
+                this.createStars();
+                this.createMaze();
+                this.initializeDialog();
+            }
+
+            createStars() {
+                const starsContainer = document.getElementById('stars');
+                const numStars = 100;
+                
+                for (let i = 0; i < numStars; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
                     
-                    for (let j = 0; j < this.maze[i].length; j++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'maze-cell';
-                        cell.classList.add(this.maze[i][j] === 1 ? 'wall' : 'path');
-                        
-                        if (i === 0 && j === 0) cell.classList.add('start');
-                        if (this.maze[i][j] === 'E') cell.classList.add('end');
-                        
-                        cell.dataset.row = i;
-                        cell.dataset.col = j;
-                        
-                        row.appendChild(cell);
-                    }
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    const size = Math.random() * 2 + 1;
+                    const duration = Math.random() * 3 + 2;
                     
-                    this.mazeContainer.appendChild(row);
+                    star.style.cssText = `
+                        left: ${x}%;
+                        top: ${y}%;
+                        width: ${size}px;
+                        height: ${size}px;
+                        --duration: ${duration}s;
+                    `;
+                    
+                    starsContainer.appendChild(star);
                 }
             }
 
             dialog = [
                 {
-                    text: "Bem-vindo à nossa lição sobre Busca em Largura (BFS)! Vamos explorar como esse algoritmo funciona de forma visual e interativa.",
-                    choices: ["Começar!", "O que é BFS?"],
-                    action: "showMaze"
+                    text: "Olá! Vamos aprender sobre a Busca em Largura (BFS)! É como explorar um labirinto nível por nível, similar a ondas se espalhando na água.",
+                    choices: ["Continue", "Como funciona?"],
+                    nextStep: 1
                 },
                 {
-                    text: "BFS é como explorar um labirinto em ondas, visitando todos os caminhos possíveis na mesma distância antes de ir mais longe.",
-                    choices: ["Como funciona?", "Ver exemplo"],
-                    action: "showMaze"
+                    text: "Diferente do DFS que mergulha fundo primeiro, o BFS explora todos os caminhos na mesma distância antes de ir mais longe.",
+                    choices: ["Por que isso é útil?", "Mostre um exemplo"],
+                    nextStep: 2
                 },
                 {
-                    text: "Vou demonstrar usando este labirinto. O quadrado verde é o início, o vermelho é o objetivo. Observe como o BFS explora em 'ondas'.",
-                    choices: ["Iniciar visualização", "Mais detalhes"],
-                    action: "visualize"
+                    text: "O BFS é ótimo para encontrar o caminho mais curto! Vamos ver um exemplo prático com este labirinto.",
+                    choices: ["Mostrar labirinto", "Como funciona na prática?"],
+                    showMaze: true,
+                    nextStep: 3
                 },
                 {
-                    text: "Observe as cores: Rosa são células já visitadas, ciano são células na fila de espera, e o rosa brilhante é a célula atual.",
-                    choices: ["Continuar visualização", "Reiniciar"],
-                    action: "continue"
+                    text: "No labirinto, verde é o início, vermelho é o objetivo. O BFS vai explorar em 'ondas', garantindo encontrar o menor caminho.",
+                    choices: ["Iniciar visualização", "Explique mais"],
+                    nextStep: 4
                 },
                 {
-                    text: "Viu como o algoritmo explorou em ondas uniformes? Isso garante que encontramos sempre o caminho mais curto primeiro!",
-                    choices: ["Mostrar novamente", "Próximo tópico"],
-                    action: "repeat"
+                    text: "O BFS usa uma fila para explorar sistematicamente. Células cianas estão na fila, rosa são visitadas. Vamos ver em ação!",
+                    choices: ["Começar demonstração", "Como funciona a fila?"],
+                    startVisualization: true,
+                    nextStep: 5
+                },
+                {
+                    text: "Incrível! Viu como a exploração aconteceu em 'ondas'? Cada nova onda estava um passo mais distante do início.",
+                    choices: ["Aplicações práticas", "Ver novamente"],
+                    nextStep: 6
+                },
+                {
+                    text: "O BFS é usado em GPS, redes sociais (encontrar conexões), jogos (movimento de personagens) e muito mais!",
+                    choices: ["Finalizar", "Ver exemplo novamente"],
+                    nextStep: 7
+                },
+                {
+                    text: "Parabéns! Você completou a lição sobre BFS! Agora você entende como encontrar caminhos mais curtos de forma eficiente.",
+                    choices: ["Rever BFS", "Próxima lição"],
+                    isFinal: true
                 }
             ];
 
-            async startBFSVisualization() {
+            initializeDialog() {
+                this.showDialog(0);
+            }
+
+            showDialog(step) {
+                if (step >= this.dialog.length) return;
+                
+                this.currentStep = step;
+                const currentDialog = this.dialog[step];
+                
+                this.dialogText.textContent = currentDialog.text;
+                this.choicesContainer.innerHTML = '';
+                
+                currentDialog.choices.forEach((choice, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'choice-btn';
+                    button.textContent = choice;
+                    button.onclick = () => this.makeChoice(index, step);
+                    this.choicesContainer.appendChild(button);
+                });
+
+                if (currentDialog.showMaze) {
+                    this.mazeContainer.style.display = 'block';
+                }
+
+                this.updateProgress();
+            }
+
+            updateProgress() {
+                const progress = (this.currentStep / (this.dialog.length - 1)) * 100;
+                this.progressBar.style.width = `${progress}%`;
+            }
+
+            makeChoice(choiceIndex, currentStep) {
                 if (this.isVisualizing) return;
-                this.isVisualizing = true;
-                
-                // Reset visualization state
-                this.resetVisualization();
-                
-                const queue = [[0, 0]];
-                const visited = new Set();
-                const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
-                
-                while (queue.length > 0 && this.isVisualizing) {
-                    const [row, col] = queue.shift();
-                    const currentCell = this.getCellElement(row, col);
-                    
-                    if (!this.isWall(row, col) && !visited.has(`${row},${col}`)) {
-                        // Mark as visited
-                        visited.add(`${row},${col}`);
-                        currentCell.classList.add('visited');
-                        
-                        // Highlight current cell
-                        currentCell.classList.add('current');
-                        await this.delay(300);
-                        currentCell.classList.remove('current');
-                        
-                        // Check if reached end
-                        if (this.maze[row][col] === 'E') {
-                            break;
-                        }
-                        
-                        // Add neighbors to queue
-                        for (const [dr, dc] of directions) {
-                            const newRow = row + dr;
-                            const newCol = col + dc;
-                            
-                            if (this.isValidCell(newRow, newCol) && 
-                                !this.isWall(newRow, newCol) && 
-                                !visited.has(`${newRow},${newCol}`)) {
-                                queue.push([newRow, newCol]);
-                                const neighborCell = this.getCellElement(newRow, newCol);
-                                neighborCell.classList.add('queue');
-                            }
-                        }
+
+                const currentDialog = this.dialog[currentStep];
+
+                if (currentDialog.isFinal) {
+                    if (choiceIndex === 0) {
+                        this.resetVisualization();
+                        this.showDialog(0);
+                    } else {
+                        // Redirect to next lesson
+                        window.location.href = 'Lesson1_5.html';
                     }
+                    return;
                 }
+
+                if (currentDialog.startVisualization || 
+                    currentDialog.choices[choiceIndex].toLowerCase().includes('visualização') ||
+                    currentDialog.choices[choiceIndex].toLowerCase().includes('demonstração')) {
+                    this.startBFSVisualization();
+                    return;
+                }
+
+                if (choiceIndex === 1 && currentDialog.choices[choiceIndex].toLowerCase().includes('novamente')) {
+                    this.resetVisualization();
+                    this.startBFSVisualization();
+                    return;
+                }
+
+                this.showDialog(currentDialog.nextStep);
+            }
+
+            createMaze() {
+                this.mazeContainer.innerHTML = '';
                 
-                this.isVisualizing = false;
-                if (this.currentStep === 2) {
-                    setTimeout(() => this.showDialog(3), 1000);
-                }
-            }
-
-            getCellElement(row, col) {
-                return this.mazeContainer.children[row].children[col];
-            }
-
-            isWall(row, col) {
-                return this.maze[row][col] === 1;
-            }
-
-            isValidCell(row, col) {
-                return row >= 0 && row < this.MAZE_SIZE && col >= 0 && col < this.MAZE_SIZE;
-            }
-
-            delay(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
+                this.maze.forEach((row, i) => {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'maze-row';
+                    
+                    row.forEach((cell, j) => {
+                        const cellDiv = document.createElement('div');
+                        cellDiv.className = 'maze-cell';
+                        
+                        if (cell === 1) {
+                            cellDiv.classList.add('wall');
+                        } else {
+                            cellDiv.classList.add('path');
+                            if (i === 0 && j === 0) cellDiv.classList.add('start');
+                            if (cell === 'E') cellDiv.classList.add('end');
+                        }
+                        
+                        rowDiv.appendChild(cellDiv);
+                    });
+                    
+                    this.mazeContainer.appendChild(rowDiv);
+                });
             }
 
             resetVisualization() {
-                const cells = this.mazeContainer.querySelectorAll('.maze-cell');
+                this.isVisualizing = false;
+                const cells = document.querySelectorAll('.maze-cell');
                 cells.forEach(cell => {
                     cell.classList.remove('visited', 'queue', 'current');
                     if (!cell.classList.contains('wall') && 
@@ -416,92 +454,105 @@
                         cell.classList.add('path');
                     }
                 });
+                this.mazeContainer.style.display = 'block';
             }
 
-            showDialog(step) {
-                this.currentStep = step;
-                const dialog = this.dialog[step];
+            async startBFSVisualization() {
+                if (this.isVisualizing) return;
+                this.isVisualizing = true;
                 
-                this.dialogText.textContent = dialog.text;
-                this.choicesContainer.innerHTML = '';
+                this.resetVisualization();
                 
-                dialog.choices.forEach((choice, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'choice-btn';
-                    button.textContent = choice;
-                    button.onclick = () => this.handleChoice(choice, index);
-                    this.choicesContainer.appendChild(button);
-                });
+                const rows = this.maze.length;
+                const cols = this.maze[0].length;
+                const start = [0, 0];
+                const end = [7, 6]; // Position of 'E' in the maze
+                
+                // Queue will store [row, col, path]
+                const queue = [[...start, []]];
+                const visited = new Set();
+                const cellElements = document.querySelectorAll('.maze-row .maze-cell');
+                
+                const getCellElement = (row, col) => {
+                    return cellElements[row * cols + col];
+                };
+                
+                const isValid = (row, col) => {
+                    return row >= 0 && row < rows && 
+                           col >= 0 && col < cols && 
+                           this.maze[row][col] !== 1 &&
+                           !visited.has(`${row},${col}`);
+                };
+                
+                const directions = [
+                    [-1, 0], // up
+                    [1, 0],  // down
+                    [0, -1], // left
+                    [0, 1]   // right
+                ];
 
-                if (dialog.action === "showMaze") {
-                    this.mazeContainer.style.display = 'block';
-                }
-
-                this.updateProgress();
-            }
-
-            handleChoice(choice, index) {
-                const currentDialog = this.dialog[this.currentStep];
-
-                // Handle special actions
-                switch (currentDialog.action) {
-                    case "visualize":
-                        if (choice.toLowerCase().includes("visualização")) {
-                            this.startBFSVisualization();
-                            return;
+                // For visualization timing
+                const STEP_DELAY = 300;
+                const NEIGHBOR_DELAY = 100;
+                
+                while (queue.length > 0 && this.isVisualizing) {
+                    const [currentRow, currentCol, path] = queue.shift();
+                    const currentPos = `${currentRow},${currentCol}`;
+                    
+                    if (visited.has(currentPos)) continue;
+                    visited.add(currentPos);
+                    
+                    // Visualize current cell
+                    const currentCell = getCellElement(currentRow, currentCol);
+                    if (!currentCell.classList.contains('start') && 
+                        !currentCell.classList.contains('end')) {
+                        currentCell.classList.add('current');
+                        currentCell.classList.add('visited');
+                        await new Promise(resolve => setTimeout(resolve, STEP_DELAY));
+                        currentCell.classList.remove('current');
+                    }
+                    
+                    // Check if we reached the end
+                    if (currentRow === end[0] && currentCol === end[1]) {
+                        // Highlight the path
+                        for (const [pathRow, pathCol] of path) {
+                            const pathCell = getCellElement(pathRow, pathCol);
+                            if (!pathCell.classList.contains('start') && 
+                                !pathCell.classList.contains('end')) {
+                                pathCell.style.backgroundColor = '#ffd700';
+                                pathCell.style.boxShadow = '0 0 15px #ffd700';
+                            }
+                            await new Promise(resolve => setTimeout(resolve, STEP_DELAY));
                         }
                         break;
+                    }
+                    
+                    // Add neighbors to queue
+                    for (const [dx, dy] of directions) {
+                        const newRow = currentRow + dx;
+                        const newCol = currentCol + dy;
                         
-                    case "continue":
-                        if (choice.toLowerCase().includes("continuar")) {
-                            this.startBFSVisualization();
-                            return;
-                        }
-                        if (choice.toLowerCase().includes("reiniciar")) {
-                            this.resetVisualization();
-                            this.showDialog(2);
-                            return;
-                        }
-                        break;
-                        
-                    case "repeat":
-                        if (choice.toLowerCase().includes("novamente")) {
-                            this.resetVisualization();
-                            this.showDialog(2);
-                            return;
-                        }
-                        // Progress to next topic
-                        if (choice.toLowerCase().includes("próximo")) {
-                            window.location.href = 'nextLesson.html';
-                            return;
-                        }
-                        break;
-                }
-
-                // Default progression
-                if (this.currentStep < this.dialog.length - 1) {
-                    // Progress based on choice
-                    if (index === 0) {
-                        // First choice usually progresses
-                        this.showDialog(this.currentStep + 1);
-                    } else {
-                        // Second choice might show additional info
-                        if (this.currentStep > 0) {
-                            this.showDialog(this.currentStep);
-                        } else {
-                            this.showDialog(this.currentStep + 1);
+                        if (isValid(newRow, newCol)) {
+                            const neighborCell = getCellElement(newRow, newCol);
+                            if (!neighborCell.classList.contains('end')) {
+                                neighborCell.classList.add('queue');
+                            }
+                            queue.push([
+                                newRow, 
+                                newCol, 
+                                [...path, [currentRow, currentCol]]
+                            ]);
+                            await new Promise(resolve => setTimeout(resolve, NEIGHBOR_DELAY));
                         }
                     }
                 }
-            }
-
-            updateProgress() {
-                const progress = (this.currentStep / (this.dialog.length - 1)) * 100;
-                this.progressBar.style.width = `${progress}%`;
-            }
-
-            initializeDialog() {
-                this.showDialog(0);
+                
+                this.isVisualizing = false;
+                
+                // Progress dialog if we're in the main flow
+                if (this.currentStep === 4) {
+                    setTimeout(() => this.showDialog(5), 1000);
+                }
             }
         }
 
