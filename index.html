@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<!-- Previous head section remains the same until the style tag -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Greedy Best First Search - Visualização Interativa</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        /* Previous base styles remain the same */
         :root {
             --primary: #2563eb;
             --secondary: #4338ca;
@@ -15,10 +13,8 @@
             --background: #0f172a;
             --text: #f8fafc;
             --success: #22c55e;
-            --panel-bg: rgba(15, 23, 42, 0.9);
         }
 
-        /* Previous styles until .content remain the same */
         body {
             margin: 0;
             padding: 0;
@@ -33,7 +29,6 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
-            position: relative;
         }
 
         .header {
@@ -64,138 +59,22 @@
             gap: 2rem;
             margin-bottom: 4rem;
             opacity: 0;
-            position: relative;
         }
 
-        /* Updated and new styles */
-        .control-dock {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--panel-bg);
-            backdrop-filter: blur(10px);
-            padding: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            z-index: 100;
-            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-dock.visible {
-            transform: translateY(0);
-        }
-
-        .speed-control {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem 1.5rem;
+        .explanation {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
             border-radius: 1rem;
-            min-width: 300px;
+            box-shadow: 0 0 2rem rgba(37, 99, 235, 0.2);
+            backdrop-filter: blur(10px);
         }
 
-        .speed-control label {
-            color: var(--text);
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-
-        .speed-control input {
-            width: 150px;
-            accent-color: var(--accent);
-        }
-
-        .speed-value {
-            min-width: 60px;
-            text-align: right;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-        }
-
-        button {
-            background: var(--primary);
-            color: var(--text);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            min-width: 120px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
-        button:hover::before {
-            left: 100%;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(37, 99, 235, 0.2);
-        }
-
-        #startBtn {
-            background: var(--primary);
-        }
-
-        #resetBtn {
-            background: var(--secondary);
-        }
-
-        .continue-btn {
-            background: var(--success);
-            display: none;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-            }
-        }
-
-        /* Previous maze-related styles remain the same */
         .maze-container {
             position: relative;
             aspect-ratio: 1;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 0 2rem rgba(37, 99, 235, 0.2);
         }
 
         #maze {
@@ -234,13 +113,126 @@
             fill: var(--accent);
             filter: drop-shadow(0 0 0.5rem var(--accent));
         }
+
+        .control-panel {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            background: var(--primary);
+            color: var(--text);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(245, 158, 11, 0.3);
+        }
+
+        button:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .continue-button {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--success);
+            color: var(--text);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 2rem rgba(34, 197, 94, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .continue-button:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 3rem rgba(34, 197, 94, 0.6);
+        }
+
+        .victory-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: float 8s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes celebrate {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .celebrating {
+            background: linear-gradient(45deg, var(--success), var(--accent), var(--primary));
+            background-size: 200% 200%;
+            animation: celebrate 4s ease infinite;
+        }
     </style>
 </head>
 <body>
-    <!-- Previous particle and container divs remain the same -->
     <div class="floating-particles" id="particles"></div>
+    <div class="victory-overlay" id="victoryOverlay"></div>
+    <button class="continue-button" id="continueBtn" style="display: none;">Continuar Aula</button>
+    
     <div class="container">
-        <!-- Previous header and content sections remain the same -->
         <header class="header">
             <h1 class="title">Greedy Best First Search</h1>
             <p class="subtitle">
@@ -269,28 +261,16 @@
             </div>
             <div class="maze-container">
                 <svg id="maze" viewBox="0 0 500 500"></svg>
+                <div class="control-panel">
+                    <button id="startBtn">Iniciar Busca</button>
+                    <button id="resetBtn">Resetar</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- New control dock -->
-    <div class="control-dock">
-        <div class="speed-control">
-            <label for="speedControl">Velocidade:</label>
-            <input type="range" id="speedControl" min="10" max="1000" value="100" step="10">
-            <span id="speedValue" class="speed-value">100ms</span>
-        </div>
-        <div class="button-group">
-            <button id="startBtn">Iniciar Busca</button>
-            <button id="resetBtn">Resetar</button>
-            <button id="continueBtn" class="continue-btn" onclick="window.location.href='Lesson1_6.html'">
-                Continuar Aula
-            </button>
-        </div>
-    </div>
-
     <script>
-        // Previous particle creation and GSAP animation code remains the same
+        // Create floating particles
         const particles = document.getElementById('particles');
         for (let i = 0; i < 50; i++) {
             const particle = document.createElement('div');
@@ -317,25 +297,9 @@
             y: 20,
         });
 
-        // Show control dock after content appears
-        gsap.to('.control-dock', {
-            delay: 1,
-            duration: 0.5,
-            ease: 'power2.out',
-            className: '+=visible'
-        });
-
-        // Speed control setup
-        const speedControl = document.getElementById('speedControl');
-        const speedValue = document.getElementById('speedValue');
-        const continueBtn = document.getElementById('continueBtn');
-        let isRunning = false;
+        const MAZE_SIZE = 15;
+        const CELL_SIZE = 500 / MAZE_SIZE;
         
-        speedControl.addEventListener('input', () => {
-            speedValue.textContent = `${speedControl.value}ms`;
-        });
-
-        // Maze generation and pathfinding logic
         class Cell {
             constructor(x, y) {
                 this.x = x;
@@ -357,7 +321,6 @@
             }
 
             initializeMaze() {
-                this.grid = [];
                 for (let y = 0; y < MAZE_SIZE; y++) {
                     const row = [];
                     for (let x = 0; x < MAZE_SIZE; x++) {
@@ -366,12 +329,10 @@
                     this.grid.push(row);
                 }
 
-                // Ensure start and end are not walls
                 this.grid[this.start.y][this.start.x].isWall = false;
                 this.grid[this.end.y][this.end.x].isWall = false;
             }
 
-            // Previous maze methods remain the same
             manhattanDistance(from, to) {
                 return Math.abs(from.x - to.x) + Math.abs(from.y - to.y);
             }
@@ -379,10 +340,10 @@
             getNeighbors(cell) {
                 const neighbors = [];
                 const directions = [
-                    { x: 0, y: -1 }, // up
-                    { x: 1, y: 0 },  // right
-                    { x: 0, y: 1 },  // down
-                    { x: -1, y: 0 }  // left
+                    { x: 0, y: -1 },
+                    { x: 1, y: 0 },
+                    { x: 0, y: 1 },
+                    { x: -1, y: 0 }
                 ];
 
                 for (const dir of directions) {
@@ -401,13 +362,10 @@
             }
 
             async findPath() {
-                if (isRunning) return;
-                isRunning = true;
-                
                 const openSet = [this.grid[this.start.y][this.start.x]];
                 const path = new Map();
 
-                while (openSet.length > 0 && isRunning) {
+                while (openSet.length > 0) {
                     openSet.sort((a, b) => {
                         return this.manhattanDistance(a, this.end) - 
                                this.manhattanDistance(b, this.end);
@@ -415,15 +373,7 @@
 
                     const current = openSet.shift();
                     if (current.x === this.end.x && current.y === this.end.y) {
-                        // Show continue button with animation
-                        continueBtn.style.display = 'block';
-                        gsap.from(continueBtn, {
-                            scale: 0,
-                            opacity: 0,
-                            duration: 0.5,
-                            ease: 'back.out'
-                        });
-                        isRunning = false;
+                        await this.celebrateVictory();
                         return true;
                     }
 
@@ -432,7 +382,7 @@
                     current.element.classList.add('visited');
                     current.element.classList.add('current');
 
-                    await new Promise(resolve => setTimeout(resolve, parseInt(speedControl.value)));
+                    await new Promise(resolve => setTimeout(resolve, 100));
                     current.element.classList.remove('current');
 
                     const neighbors = this.getNeighbors(current);
@@ -442,19 +392,40 @@
                     }
                 }
 
-                isRunning = false;
                 return false;
+            }
+
+            async celebrateVictory() {
+                const endCell = this.grid[this.end.y][this.end.x].element;
+                endCell.classList.add('celebrating');
+
+                const overlay = document.getElementById('victoryOverlay');
+                gsap.to(overlay, {
+                    opacity: 1,
+                    duration: 1,
+                    ease: 'power2.inOut'
+                });
+
+                const continueBtn = document.getElementById('continueBtn');
+                continueBtn.style.display = 'block';
+                gsap.to(continueBtn, {
+                    scale: 1,
+                    duration: 1,
+                    delay: 0.5,
+                    ease: 'elastic.out(1, 0.5)'
+                });
+
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('resetBtn').disabled = true;
             }
         }
 
-        // UI Setup and Control
-        const MAZE_SIZE = 15;
-        const CELL_SIZE = 500 / MAZE_SIZE;
-        let maze = new Maze();
-        const svg = document.getElementById('maze');
+        const maze = new Maze();
 
         function drawMaze() {
+            const svg = document.getElementById('maze');
             svg.innerHTML = '';
+            
             for (let y = 0; y < MAZE_SIZE; y++) {
                 for (let x = 0; x < MAZE_SIZE; x++) {
                     const cell = maze.grid[y][x];
@@ -478,45 +449,47 @@
                     cell.element = rect;
                     svg.appendChild(rect);
                 }
-            }
+            }}
         }
 
-        // Enhanced control functionality
         document.getElementById('startBtn').addEventListener('click', async () => {
-            if (!isRunning) {
-                const startBtn = document.getElementById('startBtn');
-                startBtn.disabled = true;
-                startBtn.style.opacity = '0.5';
-                const found = await maze.findPath();
-                if (!found && !isRunning) {
-                    alert('Não foi possível encontrar um caminho!');
-                }
-                startBtn.disabled = false;
-                startBtn.style.opacity = '1';
+            const found = await maze.findPath();
+            if (!found) {
+                alert('Não foi possível encontrar um caminho!');
             }
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
-            // Stop current execution
-            isRunning = false;
-            
-            // Create new maze instance
-            maze = new Maze();
-            drawMaze();
-            
-            // Reset UI elements
-            continueBtn.style.display = 'none';
-            const startBtn = document.getElementById('startBtn');
-            startBtn.disabled = false;
-            startBtn.style.opacity = '1';
-            
-            // Add reset animation
-            gsap.from(svg, {
-                opacity: 0,
-                scale: 0.95,
-                duration: 0.5,
-                ease: 'power2.out'
+            maze.grid.forEach(row => {
+                row.forEach(cell => {
+                    cell.isVisited = false;
+                    cell.isPath = false;
+                    cell.element.classList.remove('visited', 'path', 'current', 'celebrating');
+                });
             });
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('resetBtn').disabled = false;
+            
+            const overlay = document.getElementById('victoryOverlay');
+            const continueBtn = document.getElementById('continueBtn');
+            
+            gsap.to(overlay, {
+                opacity: 0,
+                duration: 0.5
+            });
+            
+            gsap.to(continueBtn, {
+                scale: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    continueBtn.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('continueBtn').addEventListener('click', () => {
+            window.location.href = 'Lesson1_6.html';
         });
 
         // Initial draw
