@@ -53,73 +53,87 @@
             z-index: 1;
         }
 
+
         .text-box {
             position: absolute;
             bottom: 20px;
             left: 20px;
             right: 20px;
             background: rgba(20, 0, 40, 0.95);
-            padding: min(20px, 2vh);
+            padding: min(15px, 1.5vh);
             border-radius: 10px;
             border: 1px solid rgba(255, 158, 205, 0.3);
             z-index: 2;
             backdrop-filter: blur(10px);
             height: auto;
-            max-height: 25vh;
+            max-height: 22vh;
             display: flex;
             flex-direction: column;
         }
-
+        
         .speaker {
             color: #ff9ecd;
             font-weight: bold;
-            font-size: min(1.4em, 3vh);
-            margin-bottom: min(15px, 1.5vh);
+            font-size: min(1.2em, 2.5vh);
+            margin-bottom: min(10px, 1vh);
             text-shadow: 0 0 15px rgba(255, 158, 205, 0.7);
         }
-
+        
         .dialogue {
-            line-height: 1.6;
-            margin-bottom: min(20px, 2vh);
+            line-height: 1.4;
+            margin-bottom: min(15px, 1.5vh);
             color: #fff;
-            font-size: min(1.1em, 2.2vh);
+            font-size: min(1em, 2vh);
             text-shadow: 0 0 8px rgba(255, 158, 205, 0.4);
         }
-
+        
         .choice-container {
             display: none;
-            gap: min(15px, 1.5vh);
+            gap: min(10px, 1vh);
             flex-direction: column;
         }
-
+        
         .choice-btn {
             background: rgba(255, 158, 205, 0.15);
             border: 2px solid rgba(255, 158, 205, 0.4);
-            padding: min(12px, 1.2vh) min(25px, 2.5vw);
+            padding: min(8px, 0.8vh) min(15px, 1.5vw);
             color: #ff9ecd;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.4s ease;
-            font-size: min(1.1em, 2.2vh);
+            font-size: min(0.9em, 1.8vh);
         }
-
+        
         .choice-btn:hover {
             background: rgba(255, 158, 205, 0.25);
             transform: scale(1.03);
             box-shadow: 0 0 30px rgba(255, 158, 205, 0.3);
         }
-
+        
         .next-btn {
             background: rgba(255, 158, 205, 0.15);
             border: 2px solid rgba(255, 158, 205, 0.4);
-            padding: min(12px, 1.2vh) min(30px, 3vw);
+            padding: min(8px, 0.8vh) min(20px, 2vw);
             color: #ff9ecd;
             border-radius: 8px;
             cursor: pointer;
             float: right;
             transition: all 0.4s ease;
-            font-size: min(1.2em, 2.4vh);
+            font-size: min(1em, 2vh);
         }
+        
+
+
+
+        
+
+
+
+
+
+
+
+        
 
         .next-btn:hover {
             background: rgba(255, 158, 205, 0.25);
