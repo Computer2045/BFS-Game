@@ -182,6 +182,21 @@
             z-index: 999;
         }
 
+        @keyframes celebrate {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .celebrating {
+            background: linear-gradient(45deg, var(--success), var(--accent), var(--primary));
+            background-size: 200% 200%;
+            animation: celebrate 4s ease infinite;
+        }
+
         .floating-particles {
             position: fixed;
             top: 0;
@@ -210,28 +225,13 @@
             animation: float 8s infinite;
             opacity: 0.3;
         }
-
-        @keyframes celebrate {
-            0%, 100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-
-        .celebrating {
-            background: linear-gradient(45deg, var(--success), var(--accent), var(--primary));
-            background-size: 200% 200%;
-            animation: celebrate 4s ease infinite;
-        }
     </style>
 </head>
 <body>
     <div class="floating-particles" id="particles"></div>
     <div class="victory-overlay" id="victoryOverlay"></div>
     <button class="continue-button" id="continueBtn" style="display: none;">Continuar Aula</button>
-    
+
     <div class="container">
         <header class="header">
             <h1 class="title">Greedy Best First Search</h1>
@@ -297,6 +297,7 @@
             y: 20,
         });
 
+        // Maze generation and pathfinding logic
         const MAZE_SIZE = 15;
         const CELL_SIZE = 500 / MAZE_SIZE;
         
@@ -329,8 +330,27 @@
                     this.grid.push(row);
                 }
 
+                // Ensure start and end are not walls
                 this.grid[this.start.y][this.start.x].isWall = false;
                 this.grid[this.end.y][this.end.x].isWall = false;
+
+                // Ensure there's a path around start and end
+                const clearAround = (x, y) => {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            const newX = x + dx;
+                            const newY = y + dy;
+                            if (newX >= 0 && newX < MAZE_SIZE && newY >= 0 && newY < MAZE_SIZE) {
+                                if (Math.random() < 0.6) {
+                                    this.grid[newY][newX].isWall = false;
+                                }
+                            }
+                        }
+                    }
+                };
+
+                clearAround(this.start.x, this.start.y);
+                clearAround(this.end.x, this.end.y);
             }
 
             manhattanDistance(from, to) {
@@ -340,10 +360,10 @@
             getNeighbors(cell) {
                 const neighbors = [];
                 const directions = [
-                    { x: 0, y: -1 },
-                    { x: 1, y: 0 },
-                    { x: 0, y: 1 },
-                    { x: -1, y: 0 }
+                    { x: 0, y: -1 }, // up
+                    { x: 1, y: 0 },  // right
+                    { x: 0, y: 1 },  // down
+                    { x: -1, y: 0 }  // left
                 ];
 
                 for (const dir of directions) {
@@ -396,9 +416,11 @@
             }
 
             async celebrateVictory() {
+                // Animate the end cell
                 const endCell = this.grid[this.end.y][this.end.x].element;
                 endCell.classList.add('celebrating');
 
+                // Show victory overlay with fade
                 const overlay = document.getElementById('victoryOverlay');
                 gsap.to(overlay, {
                     opacity: 1,
@@ -406,6 +428,7 @@
                     ease: 'power2.inOut'
                 });
 
+                // Show and animate continue button
                 const continueBtn = document.getElementById('continueBtn');
                 continueBtn.style.display = 'block';
                 gsap.to(continueBtn, {
@@ -415,17 +438,18 @@
                     ease: 'elastic.out(1, 0.5)'
                 });
 
+                // Disable other controls
                 document.getElementById('startBtn').disabled = true;
                 document.getElementById('resetBtn').disabled = true;
             }
         }
 
+        // UI Setup and Control
         const maze = new Maze();
+        const svg = document.getElementById('maze');
 
         function drawMaze() {
-            const svg = document.getElementById('maze');
             svg.innerHTML = '';
-            
             for (let y = 0; y < MAZE_SIZE; y++) {
                 for (let x = 0; x < MAZE_SIZE; x++) {
                     const cell = maze.grid[y][x];
@@ -449,13 +473,20 @@
                     cell.element = rect;
                     svg.appendChild(rect);
                 }
-            }}
+            }
         }
 
         document.getElementById('startBtn').addEventListener('click', async () => {
+            const startBtn = document.getElementById('startBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            startBtn.disabled = true;
+            resetBtn.disabled = true;
+
             const found = await maze.findPath();
             if (!found) {
                 alert('Não foi possível encontrar um caminho!');
+                startBtn.disabled = false;
+                resetBtn.disabled = false;
             }
         });
 
@@ -464,36 +495,75 @@
                 row.forEach(cell => {
                     cell.isVisited = false;
                     cell.isPath = false;
-                    cell.element.classList.remove('visited', 'path', 'current', 'celebrating');
+                    if (cell.element) {
+                        cell.element.classList.remove('visited', 'path', 'current', 'celebrating');
+                    }
                 });
             });
             
+            // Re-enable buttons
             document.getElementById('startBtn').disabled = false;
             document.getElementById('resetBtn').disabled = false;
             
-            const overlay = document.getElementById('victoryOverlay');
+            // Hide continue button and overlay
             const continueBtn = document.getElementById('continueBtn');
-            
+            const overlay = document.getElementById('victoryOverlay');
+            continueBtn.style.display = 'none';
             gsap.to(overlay, {
                 opacity: 0,
                 duration: 0.5
             });
-            
-            gsap.to(continueBtn, {
-                scale: 0,
-                duration: 0.5,
-                onComplete: () => {
-                    continueBtn.style.display = 'none';
-                }
-            });
         });
 
+        // Add continue button functionality
         document.getElementById('continueBtn').addEventListener('click', () => {
             window.location.href = 'Lesson1_6.html';
         });
 
-        // Initial draw
-        drawMaze();
+        // Generate new maze if current one is unsolvable
+        function checkMazeSolvable() {
+            const visited = new Set();
+            const stack = [{ x: maze.start.x, y: maze.start.y }];
+
+            while (stack.length > 0) {
+                const current = stack.pop();
+                const key = `${current.x},${current.y}`;
+
+                if (current.x === maze.end.x && current.y === maze.end.y) {
+                    return true;
+                }
+
+                if (!visited.has(key)) {
+                    visited.add(key);
+                    const neighbors = [
+                        { x: current.x, y: current.y - 1 },
+                        { x: current.x + 1, y: current.y },
+                        { x: current.x, y: current.y + 1 },
+                        { x: current.x - 1, y: current.y }
+                    ];
+
+                    for (const neighbor of neighbors) {
+                        if (neighbor.x >= 0 && neighbor.x < MAZE_SIZE &&
+                            neighbor.y >= 0 && neighbor.y < MAZE_SIZE &&
+                            !maze.grid[neighbor.y][neighbor.x].isWall) {
+                            stack.push(neighbor);
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function initializeSolvableMaze() {
+            do {
+                maze.grid = [];
+                maze.initializeMaze();
+            } while (!checkMazeSolvable());
+            drawMaze();
+        }
+
+        // Initial draw with solvable maze
+        initializeSolvableMaze();
     </script>
 </body>
 </html>
