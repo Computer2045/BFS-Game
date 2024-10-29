@@ -6,6 +6,7 @@
     <title>Greedy Best First Search - Visualização Interativa</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
+        /* Previous styles remain the same until the button section */
         :root {
             --primary: #2563eb;
             --secondary: #4338ca;
@@ -120,6 +121,32 @@
             transform: translateX(-50%);
             display: flex;
             gap: 1rem;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .speed-control label {
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .speed-control input {
+            width: 150px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
         }
 
         button {
@@ -137,6 +164,27 @@
             background: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 0.5rem 1rem rgba(245, 158, 11, 0.3);
+        }
+
+        .continue-btn {
+            background: #22c55e;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
         }
 
         .floating-particles {
@@ -201,8 +249,18 @@
             <div class="maze-container">
                 <svg id="maze" viewBox="0 0 500 500"></svg>
                 <div class="control-panel">
-                    <button id="startBtn">Iniciar Busca</button>
-                    <button id="resetBtn">Resetar</button>
+                    <div class="speed-control">
+                        <label for="speedControl">Velocidade:</label>
+                        <input type="range" id="speedControl" min="10" max="1000" value="100" step="10">
+                        <span id="speedValue">100ms</span>
+                    </div>
+                    <div class="button-group">
+                        <button id="startBtn">Iniciar Busca</button>
+                        <button id="resetBtn">Resetar</button>
+                        <button id="continueBtn" class="continue-btn" onclick="window.location.href='Lesson1_6.html'">
+                            Continuar Aula
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -234,6 +292,15 @@
             delay: 0.5,
             ease: 'power2.out',
             y: 20,
+        });
+
+        // Speed control setup
+        const speedControl = document.getElementById('speedControl');
+        const speedValue = document.getElementById('speedValue');
+        const continueBtn = document.getElementById('continueBtn');
+        
+        speedControl.addEventListener('input', () => {
+            speedValue.textContent = `${speedControl.value}ms`;
         });
 
         // Maze generation and pathfinding logic
@@ -314,6 +381,14 @@
 
                     const current = openSet.shift();
                     if (current.x === this.end.x && current.y === this.end.y) {
+                        // Show continue button with animation
+                        continueBtn.style.display = 'block';
+                        gsap.from(continueBtn, {
+                            scale: 0,
+                            opacity: 0,
+                            duration: 0.5,
+                            ease: 'back.out'
+                        });
                         return true;
                     }
 
@@ -322,7 +397,7 @@
                     current.element.classList.add('visited');
                     current.element.classList.add('current');
 
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    await new Promise(resolve => setTimeout(resolve, parseInt(speedControl.value)));
                     current.element.classList.remove('current');
 
                     const neighbors = this.getNeighbors(current);
@@ -372,8 +447,7 @@
             const found = await maze.findPath();
             if (!found) {
                 alert('Não foi possível encontrar um caminho!');
-            }
-        });
+            }});
 
         document.getElementById('resetBtn').addEventListener('click', () => {
             maze.grid.forEach(row => {
@@ -383,6 +457,7 @@
                     cell.element.classList.remove('visited', 'path', 'current');
                 });
             });
+            continueBtn.style.display = 'none';
         });
 
         // Initial draw
