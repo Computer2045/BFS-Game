@@ -213,22 +213,28 @@ Copy<script>
         const stack = [[1, 1]];
         const visited = new Set();
         visited.add('1-1');
-
+    
         while (stack.length > 0) {
             const [x, y] = stack.pop();
             mazeCtx.fillStyle = 'rgba(255, 158, 205, 0.5)';
             mazeCtx.fillRect(x * 50, y * 50, 50, 50);
             await new Promise(r => setTimeout(r, 500));
-
+    
             if (x === 6 && y === 6) {
                 mazeCtx.fillStyle = 'rgba(255, 158, 205, 0.8)';
                 mazeCtx.fillRect(x * 50, y * 50, 50, 50);
                 return;
             }
-
-            for (const [dx, dy] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
-                const newX = x + dx;
-                const newY = y + dy;
+    
+            // Verifique as células adjacentes na ordem: esquerda, cima, direita, baixo
+            const adjacentCells = [
+                [x - 1, y],
+                [x, y - 1],
+                [x + 1, y],
+                [x, y + 1]
+            ];
+    
+            for (const [newX, newY] of adjacentCells) {
                 if (
                     newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
                     maze[newY][newX] === 0 && !visited.has(`${newX}-${newY}`)
