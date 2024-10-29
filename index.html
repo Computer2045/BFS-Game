@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Maze DFS</title>
+    <style>
+        canvas {
+            border: 1px solid #333;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mazeCanvas"></canvas>
+    <script>
+    const canvas = document.getElementById('mazeCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = 600;
+    canvas.height = 600;
+
+    const maze = [
+        [1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 1, 1, 0, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+
+    const cellSize = canvas.width / maze[0].length;
+    
+    // Keep track of visited cells
+    const visited = new Set();
+    
+    function drawMaze() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let row = 0; row < maze.length; row++) {
+            for (let col = 0; col < maze[0].length; col++) {
+                const x = col * cellSize;
+                const y = row * cellSize;
+                
+                // Draw cell
+                if (maze[row][col] === 1) {
+                    ctx.fillStyle = '#4a1a6a'; // Wall color
+                } else {
+                    ctx.fillStyle = '#ffffff'; // Path color
+                }
+                ctx.fillRect(x, y, cellSize, cellSize);
+                
+                // Draw visited cells
+                if (visited.has(`${row},${col}`)) {
+                    ctx.fillStyle = 'rgba(255, 182, 193, 0.5)'; // Light pink for visited
+                    ctx.fillRect(x, y, cellSize, cellSize);
+                }
+                
+                // Draw grid lines
+                ctx.strokeStyle = '#333';
+                ctx.strokeRect(x, y, cellSize, cellSize);
+            }
+        }
+    }
+
+    async function dfs(row, col) {
+        // Check if position is valid
+        if (row < 0 || row >= maze.length || col < 0 || col >= maze[0].length) {
+            return;
+        }
+        
+        // Check if wall or already visited
+        if (maze[row][col] === 1 || visited.has(`${row},${col}`)) {
+            return;
+        }
+
+        // Mark as visited
+        visited.add(`${row},${col}`);
+        
+        // Redraw maze to show progress
+        drawMaze();
+        
+        // Add delay to visualize the search
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Try all four directions (up, right, down, left)
+        await dfs(row - 1, col); // Up
+        await dfs(row, col + 1); // Right
+        await dfs(row + 1, col); // Down
+        await dfs(row, col - 1); // Left
+    }
+
+    // Draw initial maze
+    drawMaze();
+
+    // Start DFS from position (1,1) after a short delay
+    setTimeout(() => {
+        dfs(1, 1);
+    }, 500);
+    </script>
+</body>
+</html>
