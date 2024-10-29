@@ -3,10 +3,15 @@
 <head>
     <title>Busca em Profundidade em Labirintos - Guia de IA</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             height: 100vh;
+            width: 100vw;
             background: #000;
             font-family: 'Arial', sans-serif;
             display: flex;
@@ -17,8 +22,10 @@
         }
 
         .game-container {
-            width: 1200px;
-            height: 800px;
+            width: 90vw;
+            height: 90vh;
+            max-width: 1600px;
+            max-height: 900px;
             background: rgba(20, 0, 40, 0.8);
             border-radius: 20px;
             position: relative;
@@ -38,8 +45,11 @@
 
         #mazeCanvas {
             position: absolute;
-            top: 50px;
-            left: 50px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            max-width: 90%;
+            max-height: 70%;
             z-index: 1;
         }
 
@@ -49,44 +59,48 @@
             left: 20px;
             right: 20px;
             background: rgba(20, 0, 40, 0.95);
-            padding: 20px;
+            padding: min(20px, 2vh);
             border-radius: 10px;
             border: 1px solid rgba(255, 158, 205, 0.3);
             z-index: 2;
             backdrop-filter: blur(10px);
+            height: auto;
+            max-height: 25vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .speaker {
             color: #ff9ecd;
             font-weight: bold;
-            font-size: 1.4em;
-            margin-bottom: 15px;
+            font-size: min(1.4em, 3vh);
+            margin-bottom: min(15px, 1.5vh);
             text-shadow: 0 0 15px rgba(255, 158, 205, 0.7);
         }
 
         .dialogue {
             line-height: 1.6;
-            margin-bottom: 20px;
+            margin-bottom: min(20px, 2vh);
             color: #fff;
-            font-size: 1.1em;
+            font-size: min(1.1em, 2.2vh);
             text-shadow: 0 0 8px rgba(255, 158, 205, 0.4);
         }
 
         .choice-container {
             display: none;
-            gap: 15px;
+            gap: min(15px, 1.5vh);
             flex-direction: column;
         }
 
         .choice-btn {
             background: rgba(255, 158, 205, 0.15);
             border: 2px solid rgba(255, 158, 205, 0.4);
-            padding: 12px 25px;
+            padding: min(12px, 1.2vh) min(25px, 2.5vw);
             color: #ff9ecd;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.4s ease;
-            font-size: 1.1em;
+            font-size: min(1.1em, 2.2vh);
         }
 
         .choice-btn:hover {
@@ -98,13 +112,13 @@
         .next-btn {
             background: rgba(255, 158, 205, 0.15);
             border: 2px solid rgba(255, 158, 205, 0.4);
-            padding: 12px 30px;
+            padding: min(12px, 1.2vh) min(30px, 3vw);
             color: #ff9ecd;
             border-radius: 8px;
             cursor: pointer;
             float: right;
             transition: all 0.4s ease;
-            font-size: 1.2em;
+            font-size: min(1.2em, 2.4vh);
         }
 
         .next-btn:hover {
@@ -127,17 +141,94 @@
     </div>
 
 <script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function resizeCanvases() {
+        const container = document.querySelector('.game-container');
+        
+        // Background canvas
+        const bgCanvas = document.querySelector('.background-canvas');
+        bgCanvas.width = container.offsetWidth;
+        bgCanvas.height = container.offsetHeight;
+        
+        // Maze canvas
+        const mazeCanvas = document.getElementById('mazeCanvas');
+        // Calculate size based on container and maintain aspect ratio
+        const containerAspect = container.offsetWidth / container.offsetHeight;
+        const mazeAspect = maze[0].length / maze.length;
+        
+        let width, height;
+        if (containerAspect > mazeAspect) {
+            height = container.offsetHeight * 0.7;
+            width = height * mazeAspect;
+        } else {
+            width = container.offsetWidth * 0.8;
+            height = width / mazeAspect;
+        }
+        
+        mazeCanvas.width = width;
+        mazeCanvas.height = height;
+        
+        drawMaze();
+    }
+
+    window.addEventListener('resize', resizeCanvases);
+
     const bgCanvas = document.querySelector('.background-canvas');
     const bgCtx = bgCanvas.getContext('2d');
-    bgCanvas.width = 1200;
-    bgCanvas.height = 800;
-
     const mazeCanvas = document.getElementById('mazeCanvas');
     const mazeCtx = mazeCanvas.getContext('2d');
-    mazeCanvas.width = 1000;
-    mazeCanvas.height = 600;
 
-    // Larger, more complex maze
     const maze = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -156,7 +247,6 @@
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ];
 
-    // Particle system
     class Particle {
         constructor() {
             this.reset();
@@ -195,21 +285,18 @@
 
     function drawBackground() {
         const time = Date.now() / 2000;
-
-        // Create dynamic gradient background
+        
         const gradient = bgCtx.createLinearGradient(0, 0, bgCanvas.width, bgCanvas.height);
         gradient.addColorStop(0, `hsl(${time * 20 % 360}, 70%, 10%)`);
         gradient.addColorStop(1, `hsl(${(time * 20 + 60) % 360}, 70%, 15%)`);
         bgCtx.fillStyle = gradient;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-        // Draw particles
         particles.forEach(particle => {
             particle.update();
             particle.draw();
         });
 
-        // Draw plasma effect
         for (let i = 0; i < 5; i++) {
             const x = bgCanvas.width / 2 + Math.cos(time + i) * 300;
             const y = bgCanvas.height / 2 + Math.sin(time + i * 2) * 150;
@@ -225,13 +312,12 @@
         requestAnimationFrame(drawBackground);
     }
 
-    // Keep track of visited cells
     const visited = new Set();
 
     function drawMaze() {
         mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
-
-        const cellSize = 40;
+        
+        const cellSize = Math.min(mazeCanvas.width / maze[0].length, mazeCanvas.height / maze.length);
         const offsetX = (mazeCanvas.width - maze[0].length * cellSize) / 2;
         const offsetY = (mazeCanvas.height - maze.length * cellSize) / 2;
 
@@ -257,7 +343,6 @@
                     mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
                 }
 
-                // Draw visited cells
                 if (visited.has(`${y},${x}`)) {
                     const gradient = mazeCtx.createRadialGradient(
                         cellX + cellSize/2, cellY + cellSize/2, 0,
@@ -276,21 +361,17 @@
     }
 
     async function depthFirstSearch(row, col) {
-        // Check if position is valid
         if (row < 0 || row >= maze.length || col < 0 || col >= maze[0].length) {
             return;
         }
         
-        // Check if wall or already visited
         if (maze[row][col] === 1 || visited.has(`${row},${col}`)) {
             return;
         }
 
-        // Mark as visited
         visited.add(`${row},${col}`);
         
-        // Add particle effect at current position
-        const cellSize = 40;
+        const cellSize = Math.min(mazeCanvas.width / maze[0].length, mazeCanvas.height / maze.length);
         const offsetX = (mazeCanvas.width - maze[0].length * cellSize) / 2;
         const offsetY = (mazeCanvas.height - maze.length * cellSize) / 2;
         const cellX = offsetX + col * cellSize;
@@ -303,17 +384,14 @@
             particles.push(particle);
         }
         
-        // Redraw maze to show progress
         drawMaze();
         
-        // Add delay to visualize the search
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Try all four directions (up, right, down, left)
-        await depthFirstSearch(row - 1, col); // Up
-        await depthFirstSearch(row, col + 1); // Right
-        await depthFirstSearch(row + 1, col); // Down
-        await depthFirstSearch(row, col - 1); // Left
+        await depthFirstSearch(row - 1, col);
+        await depthFirstSearch(row, col + 1);
+        await depthFirstSearch(row + 1, col);
+        await depthFirstSearch(row, col - 1);
     }
 
     const dialogues = [
@@ -366,7 +444,6 @@
         if (dialogue.showVisualization) {
             drawMaze();
             if (dialogue.animate === 'depthFirstSearch') {
-                // Clear previous visit history when starting new animation
                 visited.clear();
                 depthFirstSearch(1, 1);
             }
@@ -414,9 +491,10 @@
         updateDialogue();
     };
 
-    // Start the visualization
+    resizeCanvases();
     drawBackground();
     updateDialogue();
 </script>
 </body>
 </html>
+
