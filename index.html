@@ -36,7 +36,6 @@
             overflow: hidden;
         }
 
-        /* Background scene with parallax stars */
         .stars {
             position: absolute;
             width: 100%;
@@ -57,7 +56,6 @@
             50% { opacity: 1; }
         }
 
-        /* Character display area */
         #character-area {
             position: absolute;
             width: 100%;
@@ -65,13 +63,14 @@
             display: flex;
             justify-content: center;
             align-items: flex-end;
+            transform: translateY(-10vh);
         }
 
         #aria-container {
             position: relative;
             width: auto;
             height: 80vh;
-            margin-bottom: -5vh; /* Slight overlap with text box */
+            margin-bottom: -5vh;
         }
 
         #aria-container img {
@@ -80,10 +79,9 @@
             filter: drop-shadow(0 0 20px var(--neon-pink));
         }
 
-        /* Maze visualization overlay */
         #maze-container {
             position: absolute;
-            top: 50%;
+            top: 35%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: var(--text-bg);
@@ -103,10 +101,9 @@
             transition: all 0.3s;
         }
 
-        /* Dialog overlay system */
         #dialog-overlay {
             position: absolute;
-            bottom: 0;
+            bottom: 5vh;
             left: 0;
             right: 0;
             padding: 20px;
@@ -159,7 +156,6 @@
             box-shadow: 0 0 20px var(--cyber-blue);
         }
 
-        /* Progress indicator */
         #progress-container {
             position: absolute;
             top: 20px;
@@ -182,8 +178,19 @@
             transition: width 0.5s;
         }
 
-        /* Tablet optimizations */
         @media (max-width: 1024px) {
+            #character-area {
+                transform: translateY(-8vh);
+            }
+
+            #dialog-overlay {
+                bottom: 4vh;
+            }
+
+            #maze-container {
+                top: 30%;
+            }
+
             .maze-cell {
                 width: 30px;
                 height: 30px;
@@ -200,8 +207,19 @@
             }
         }
 
-        /* Landscape tablet optimizations */
         @media (max-width: 1024px) and (orientation: landscape) {
+            #character-area {
+                transform: translateY(-6vh);
+            }
+
+            #dialog-overlay {
+                bottom: 3vh;
+            }
+
+            #maze-container {
+                top: 25%;
+            }
+
             #aria-container {
                 height: 70vh;
             }
@@ -211,8 +229,19 @@
             }
         }
 
-        /* High-DPI screens */
         @media screen and (min-width: 2560px) {
+            #character-area {
+                transform: translateY(-12vh);
+            }
+
+            #dialog-overlay {
+                bottom: 6vh;
+            }
+
+            #maze-container {
+                top: 40%;
+            }
+
             #dialog-text {
                 font-size: 1.6em;
             }
@@ -253,6 +282,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <div class="stars" id="stars"></div>
