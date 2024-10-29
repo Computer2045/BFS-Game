@@ -244,14 +244,12 @@
                 this.initializeStars();
                 this.setupAriaImage();
                 this.initializeDialog();
-                this.createMaze();
             }
 
             dialog = [
                 {
                     text: "Olá! Hoje vamos explorar um algoritmo super interessante chamado Busca em Largura, ou BFS. É como jogar um pedra na água e ver as ondas se espalhando!",
-                    choices: ["Legal, me mostra!", "Parece divertido!"],
-                    action: "showMaze"
+                    choices: ["Legal, me mostra!", "Parece divertido!"]
                 },
                 {
                     text: "Imagina que você está em um labirinto e quer encontrar a saída. O BFS vai explorar todos os caminhos próximos antes de ir mais longe, igual às ondas na água!",
@@ -301,7 +299,7 @@
                 };
             }
 
-            createMaze() {
+createMaze() {
                 this.maze = [
                     [0, 0, 0, 1, 0, 0, 0, 0],
                     [1, 1, 0, 1, 0, 1, 1, 0],
@@ -378,7 +376,11 @@
                             current = parent.get(`${current[0]},${current[1]}`);
                             await this.delay(200);
                         }
-                        break;
+                        setTimeout(() => {
+                            this.isVisualizing = false;
+                            this.showDialog(this.currentStep + 1);
+                        }, 1000);
+                        return;
                     }
                     
                     const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
@@ -404,12 +406,7 @@
                 this.isVisualizing = false;
             }
 
-
-
-
-
-
-getCellElement(row, col) {
+            getCellElement(row, col) {
                 return this.mazeContainer.children[row].children[col];
             }
 
@@ -454,7 +451,8 @@ getCellElement(row, col) {
                     this.choicesContainer.appendChild(button);
                 });
 
-                if (dialog.action === "showMaze") {
+                if (dialog.action === "showMaze" && !this.maze) {
+                    this.createMaze();
                     this.mazeContainer.style.display = 'block';
                 }
 
@@ -474,12 +472,8 @@ getCellElement(row, col) {
                         break;
                         
                     case "continue":
-                        if (choice.toLowerCase().includes("legal") || 
-                            choice.toLowerCase().includes("continuar")) {
-                            setTimeout(() => this.showDialog(this.currentStep + 1), 1000);
-                            return;
-                        }
-                        break;
+                        this.showDialog(this.currentStep + 1);
+                        return;
                         
                     case "repeat":
                         if (choice.toLowerCase().includes("novamente")) {
@@ -494,6 +488,7 @@ getCellElement(row, col) {
                         break;
                 }
 
+                // Default progression
                 if (this.currentStep < this.dialog.length - 1) {
                     this.showDialog(this.currentStep + 1);
                 }
