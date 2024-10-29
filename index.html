@@ -7,7 +7,7 @@
             margin: 0;
             padding: 0;
             height: 100vh;
-            background: linear-gradient(to bottom, #200040, #400040);
+            background: #000;
             font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
@@ -15,101 +15,104 @@
             color: #ff9ecd;
             overflow: hidden;
         }
-Copy    .game-container {
-        width: 900px;
-        height: 600px;
-        background: rgba(20, 0, 40, 0.8);
-        border-radius: 15px;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 0 50px rgba(255, 158, 205, 0.2);
-        border: 1px solid rgba(255, 158, 205, 0.3);
-    }
 
-    .background-canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-    }
+        .game-container {
+            width: 1200px;
+            height: 800px;
+            background: rgba(20, 0, 40, 0.8);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 100px rgba(255, 158, 205, 0.3);
+            border: 2px solid rgba(255, 158, 205, 0.3);
+        }
 
-    #mazeCanvas {
-        position: absolute;
-        top: 50px;
-        left: 50px;
-        width: 800px;
-        height: 500px;
-        z-index: 1;
-    }
+        .background-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
 
-    .text-box {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        background: rgba(20, 0, 40, 0.95);
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 158, 205, 0.3);
-        z-index: 2;
-        backdrop-filter: blur(5px);
-    }
+        #mazeCanvas {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            z-index: 1;
+        }
 
-    .speaker {
-        color: #ff9ecd;
-        font-weight: bold;
-        font-size: 1.2em;
-        margin-bottom: 10px;
-        text-shadow: 0 0 10px rgba(255, 158, 205, 0.5);
-    }
+        .text-box {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(20, 0, 40, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 158, 205, 0.3);
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
 
-    .dialogue {
-        line-height: 1.5;
-        margin-bottom: 15px;
-        color: #fff;
-        text-shadow: 0 0 5px rgba(255, 158, 205, 0.3);
-    }
+        .speaker {
+            color: #ff9ecd;
+            font-weight: bold;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 158, 205, 0.7);
+        }
 
-    .choice-container {
-        display: none;
-        gap: 10px;
-        flex-direction: column;
-    }
+        .dialogue {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 1.1em;
+            text-shadow: 0 0 8px rgba(255, 158, 205, 0.4);
+        }
 
-    .choice-btn {
-        background: rgba(255, 158, 205, 0.1);
-        border: 1px solid rgba(255, 158, 205, 0.3);
-        padding: 10px 20px;
-        color: #ff9ecd;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+        .choice-container {
+            display: none;
+            gap: 15px;
+            flex-direction: column;
+        }
 
-    .choice-btn:hover {
-        background: rgba(255, 158, 205, 0.2);
-        transform: scale(1.02);
-        box-shadow: 0 0 20px rgba(255, 158, 205, 0.2);
-    }
+        .choice-btn {
+            background: rgba(255, 158, 205, 0.15);
+            border: 2px solid rgba(255, 158, 205, 0.4);
+            padding: 12px 25px;
+            color: #ff9ecd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            font-size: 1.1em;
+        }
 
-    .next-btn {
-        background: rgba(255, 158, 205, 0.1);
-        border: 1px solid rgba(255, 158, 205, 0.3);
-        padding: 10px 20px;
-        color: #ff9ecd;
-        border-radius: 5px;
-        cursor: pointer;
-        float: right;
-        transition: all 0.3s ease;
-    }
+        .choice-btn:hover {
+            background: rgba(255, 158, 205, 0.25);
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(255, 158, 205, 0.3);
+        }
 
-    .next-btn:hover {
-        background: rgba(255, 158, 205, 0.2);
-        box-shadow: 0 0 20px rgba(255, 158, 205, 0.2);
-    }
-</style>
+        .next-btn {
+            background: rgba(255, 158, 205, 0.15);
+            border: 2px solid rgba(255, 158, 205, 0.4);
+            padding: 12px 30px;
+            color: #ff9ecd;
+            border-radius: 8px;
+            cursor: pointer;
+            float: right;
+            transition: all 0.4s ease;
+            font-size: 1.2em;
+        }
+
+        .next-btn:hover {
+            background: rgba(255, 158, 205, 0.25);
+            box-shadow: 0 0 30px rgba(255, 158, 205, 0.3);
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
     <div class="game-container">
@@ -122,110 +125,184 @@ Copy    .game-container {
             <button class="next-btn">→</button>
         </div>
     </div>
-Copy<script>
+
+<script>
     const bgCanvas = document.querySelector('.background-canvas');
     const bgCtx = bgCanvas.getContext('2d');
-    bgCanvas.width = 900;
-    bgCanvas.height = 600;
+    bgCanvas.width = 1200;
+    bgCanvas.height = 800;
 
     const mazeCanvas = document.getElementById('mazeCanvas');
     const mazeCtx = mazeCanvas.getContext('2d');
-    mazeCanvas.width = 800;
-    mazeCanvas.height = 500;
+    mazeCanvas.width = 1000;
+    mazeCanvas.height = 600;
 
+    // Larger, more complex maze
     const maze = [
-        [1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 1, 1, 1, 0, 1],
-        [1, 0, 1, 0, 0, 1, 0, 1],
-        [1, 0, 1, 0, 1, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1]
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ];
 
+    // Particle system
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+
+        reset() {
+            this.x = Math.random() * bgCanvas.width;
+            this.y = Math.random() * bgCanvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = (Math.random() - 0.5) * 2;
+            this.speedY = (Math.random() - 0.5) * 2;
+            this.life = Math.random() * 0.5 + 0.5;
+            this.maxLife = this.life;
+        }
+
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.life -= 0.01;
+
+            if (this.life <= 0 || this.x < 0 || this.x > bgCanvas.width || this.y < 0 || this.y > bgCanvas.height) {
+                this.reset();
+            }
+        }
+
+        draw() {
+            const alpha = (this.life / this.maxLife) * 0.5;
+            bgCtx.fillStyle = `rgba(255, 158, 205, ${alpha})`;
+            bgCtx.beginPath();
+            bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            bgCtx.fill();
+        }
+    }
+
+    const particles = Array(150).fill().map(() => new Particle());
+
     function drawBackground() {
-        const time = Date.now() / 3000;
+        const time = Date.now() / 2000;
 
+        // Create dynamic gradient background
         const gradient = bgCtx.createLinearGradient(0, 0, bgCanvas.width, bgCanvas.height);
-        gradient.addColorStop(0, '#200040');
-        gradient.addColorStop(1, '#400040');
-
+        gradient.addColorStop(0, `hsl(${time * 20 % 360}, 70%, 10%)`);
+        gradient.addColorStop(1, `hsl(${(time * 20 + 60) % 360}, 70%, 15%)`);
         bgCtx.fillStyle = gradient;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-        for (let i = 0; i < 100; i++) {
-            const x = (bgCanvas.width * i / 100 + time * 50) % bgCanvas.width;
-            const y = bgCanvas.height / 2 + Math.sin(time + i / 10) * 100;
-            const size = 2 + Math.sin(time + i) * 1;
-            const alpha = 0.5 + Math.sin(time + i) * 0.3;
-            bgCtx.fillStyle = `rgba(255, 158, 205, ${alpha})`;
-            bgCtx.beginPath();
-            bgCtx.arc(x, y, size, 0, Math.PI * 2);
-            bgCtx.fill();
-        }
+        // Draw particles
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
 
-        for (let i = 0; i < 3; i++) {
-            const x = bgCanvas.width / 2 + Math.cos(time + i * 2) * 200;
-            const y = bgCanvas.height / 2 + Math.sin(time + i * 2) * 100;
-            const gradient = bgCtx.createRadialGradient(x, y, 0, x, y, 150);
-            gradient.addColorStop(0, 'rgba(255, 158, 205, 0.1)');
-            gradient.addColorStop(1, 'rgba(255, 158, 205, 0)');
+        // Draw plasma effect
+        for (let i = 0; i < 5; i++) {
+            const x = bgCanvas.width / 2 + Math.cos(time + i) * 300;
+            const y = bgCanvas.height / 2 + Math.sin(time + i * 2) * 150;
+            const gradient = bgCtx.createRadialGradient(x, y, 0, x, y, 200);
+            gradient.addColorStop(0, `hsla(${(time * 50 + i * 60) % 360}, 70%, 50%, 0.1)`);
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
             bgCtx.fillStyle = gradient;
             bgCtx.beginPath();
-            bgCtx.arc(x, y, 150, 0, Math.PI * 2);
+            bgCtx.arc(x, y, 200, 0, Math.PI * 2);
             bgCtx.fill();
         }
 
-        for (let i = 0; i < 20; i++) {
-            const x = Math.random() * bgCanvas.width;
-            const y = Math.random() * bgCanvas.height;
-            const size = Math.random() * 2;
-            const alpha = Math.random() * 0.5;
-            bgCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-            bgCtx.beginPath();
-            bgCtx.arc(x, y, size, 0, Math.PI * 2);
-            bgCtx.fill();
-        }
+        requestAnimationFrame(drawBackground);
     }
 
     function drawMaze() {
         mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
 
-        const cellSize = 50;
-        const gridSize = maze.length;
+        const cellSize = 40;
+        const offsetX = (mazeCanvas.width - maze[0].length * cellSize) / 2;
+        const offsetY = (mazeCanvas.height - maze.length * cellSize) / 2;
 
-        for (let y = 0; y < gridSize; y++) {
-            for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < maze.length; y++) {
+            for (let x = 0; x < maze[0].length; x++) {
+                const cellX = offsetX + x * cellSize;
+                const cellY = offsetY + y * cellSize;
+
                 if (maze[y][x] === 1) {
-                    mazeCtx.fillStyle = '#333';
-                    mazeCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    const gradient = mazeCtx.createLinearGradient(
+                        cellX, cellY,
+                        cellX + cellSize, cellY + cellSize
+                    );
+                    gradient.addColorStop(0, '#2a0a4a');
+                    gradient.addColorStop(1, '#4a1a6a');
+                    mazeCtx.fillStyle = gradient;
+                    mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
+                    
+                    // Add subtle glow effect to walls
+                    mazeCtx.shadowColor = 'rgba(255, 158, 205, 0.5)';
+                    mazeCtx.shadowBlur = 10;
                 } else {
-                    mazeCtx.fillStyle = '#fff';
-                    mazeCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    mazeCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                    mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
                 }
+                
+                mazeCtx.strokeStyle = 'rgba(255, 158, 205, 0.3)';
+                mazeCtx.strokeRect(cellX, cellY, cellSize, cellSize);
             }
         }
     }
 
     async function depthFirstSearch() {
+        const cellSize = 40;
+        const offsetX = (mazeCanvas.width - maze[0].length * cellSize) / 2;
+        const offsetY = (mazeCanvas.height - maze.length * cellSize) / 2;
+        
         const stack = [[1, 1]];
         const visited = new Set();
         visited.add('1-1');
 
         while (stack.length > 0) {
             const [x, y] = stack.pop();
-            mazeCtx.fillStyle = 'rgba(255, 158, 205, 0.5)';
-            mazeCtx.fillRect(x * 50, y * 50, 50, 50);
-            await new Promise(r => setTimeout(r, 500));
+            const cellX = offsetX + x * cellSize;
+            const cellY = offsetY + y * cellSize;
+
+            // Create glowing effect for visited cells
+            const gradient = mazeCtx.createRadialGradient(
+                cellX + cellSize/2, cellY + cellSize/2, 0,
+                cellX + cellSize/2, cellY + cellSize/2, cellSize
+            );
+            gradient.addColorStop(0, 'rgba(255, 158, 205, 0.6)');
+            gradient.addColorStop(1, 'rgba(255, 158, 205, 0.2)');
+            mazeCtx.fillStyle = gradient;
+            mazeCtx.fillRect(cellX, cellY, cellSize, cellSize);
+
+            // Add particle effect at current position
+            for (let i = 0; i < 5; i++) {
+                const particle = new Particle();
+                particle.x = cellX + cellSize/2;
+                particle.y = cellY + cellSize/2;
+                particles.push(particle);
+            }
+
+            await new Promise(r => setTimeout(r, 100));
 
             for (const [dx, dy] of [[0, 1], [-1, 0], [0, -1], [1, 0]]) {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (
-                    newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
-                    maze[newY][newX] === 0 && !visited.has(`${newX}-${newY}`)
+                    newX >= 0 && newX < maze[0].length && 
+                    newY >= 0 && newY < maze.length &&
+                    maze[newY][newX] === 0 && 
+                    !visited.has(`${newX}-${newY}`)
                 ) {
                     stack.push([newX, newY]);
                     visited.add(`${newX}-${newY}`);
@@ -330,6 +407,7 @@ Copy<script>
         updateDialogue();
     };
 
+    // Start the visualization
     drawBackground();
     updateDialogue();
 </script>
