@@ -92,13 +92,17 @@
             z-index: 20;
         }
 
+        .maze-row {
+            display: flex;
+            justify-content: center;
+        }
+
         .maze-cell {
             width: 40px;
             height: 40px;
             border: 1px solid #333;
-            display: inline-block;
             margin: 2px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         #dialog-overlay {
@@ -178,86 +182,6 @@
             transition: width 0.5s;
         }
 
-        @media (max-width: 1024px) {
-            #character-area {
-                transform: translateY(-8vh);
-            }
-
-            #dialog-overlay {
-                bottom: 4vh;
-            }
-
-            #maze-container {
-                top: 30%;
-            }
-
-            .maze-cell {
-                width: 30px;
-                height: 30px;
-                margin: 1px;
-            }
-
-            #dialog-text {
-                font-size: 1.2em;
-            }
-
-            .choice-btn {
-                font-size: 1.1em;
-                padding: 10px 20px;
-            }
-        }
-
-        @media (max-width: 1024px) and (orientation: landscape) {
-            #character-area {
-                transform: translateY(-6vh);
-            }
-
-            #dialog-overlay {
-                bottom: 3vh;
-            }
-
-            #maze-container {
-                top: 25%;
-            }
-
-            #aria-container {
-                height: 70vh;
-            }
-
-            #dialog-overlay {
-                padding: 15px;
-            }
-        }
-
-        @media screen and (min-width: 2560px) {
-            #character-area {
-                transform: translateY(-12vh);
-            }
-
-            #dialog-overlay {
-                bottom: 6vh;
-            }
-
-            #maze-container {
-                top: 40%;
-            }
-
-            #dialog-text {
-                font-size: 1.6em;
-            }
-
-            .choice-btn {
-                font-size: 1.4em;
-                padding: 15px 30px;
-            }
-
-            .maze-cell {
-                width: 50px;
-                height: 50px;
-                margin: 3px;
-            }
-        }
-
         .wall { background: #444; }
         .path { background: #111; }
         .visited { 
@@ -282,10 +206,6 @@
         }
     </style>
 </head>
-
-
-
-
 <body>
     <div id="app">
         <div class="stars" id="stars"></div>
@@ -310,31 +230,6 @@
     </div>
 
     <script>
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            const numStars = 100;
-            
-            for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                const size = Math.random() * 2 + 1;
-                const duration = Math.random() * 3 + 2;
-                
-                star.style.cssText = `
-                    left: ${x}%;
-                    top: ${y}%;
-                    width: ${size}px;
-                    height: ${size}px;
-                    --duration: ${duration}s;
-                `;
-                
-                starsContainer.appendChild(star);
-            }
-        }
-
         class DialogSystem {
             constructor() {
                 this.currentStep = 0;
@@ -343,161 +238,44 @@
                 this.mazeContainer = document.getElementById('maze-container');
                 this.progressBar = document.getElementById('progress');
                 this.isVisualizing = false;
+                this.maze = null;
+                this.MAZE_SIZE = 8;
                 
+                // Initialize components
+                this.initializeStars();
+                this.setupAriaImage();
+                this.initializeDialog();
+                this.createMaze();
+            }
+
+            initializeStars() {
+                const starsContainer = document.getElementById('stars');
+                const numStars = 100;
+                
+                for (let i = 0; i < numStars; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.cssText = `
+                        left: ${Math.random() * 100}%;
+                        top: ${Math.random() * 100}%;
+                        width: ${Math.random() * 2 + 1}px;
+                        height: ${Math.random() * 2 + 1}px;
+                        --duration: ${Math.random() * 3 + 2}s;
+                    `;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            setupAriaImage() {
                 const ariaImg = document.querySelector('#aria-container img');
                 ariaImg.onerror = () => {
                     console.warn('ARIA.png not found, falling back to placeholder');
                     ariaImg.src = '/api/placeholder/500/800';
                 };
-                
-                createStars();
-                this.initializeDialog();
-            }
-
-            dialog = [
-                {
-                    text: "Agora que já cobrimos o DFS, vamos explorar seu fascinante irmão - a Busca em Largura (BFS)! Pense no BFS como explorar um labirinto nível por nível, como ondas se espalhando de onde você joga uma pedra na água.",
-                    choices: ["Me conte mais!", "Como é diferente do DFS?"]
-                },
-                {
-                    text: "A principal diferença é a forma de exploração. Enquanto o DFS mergulha fundo em um caminho até não poder mais avançar, o BFS é mais metódico: ele explora TODOS os caminhos possíveis na mesma distância antes de ir mais longe.",
-                    choices: ["Isso parece mais organizado!", "Por que isso é útil?"]
-                },
-                {
-                    text: "Exatamente! É muito organizado e isso traz uma garantia importante: sempre encontramos o caminho mais curto primeiro! Imagine enviar robôs exploradores em todas as direções com a mesma velocidade - o primeiro a chegar ao objetivo usou o menor caminho!",
-                    choices: ["Como isso funciona na prática?", "Mostre um exemplo!"],
-                    showMaze: true
-                },
-                {
-                    text: "Vou mostrar um exemplo prático! Neste labirinto, o quadrado verde é o início, o vermelho é o objetivo, e as paredes cinzas são obstáculos. Vamos ver como o BFS explora esse espaço de forma sistemática.",
-                    choices: ["Como funciona a exploração?", "Iniciar visualização"]
-                },
-                {
-                    text: "O BFS usa uma estrutura chamada 'fila' para garantir a exploração por níveis. Primeiro, exploramos todas as células vizinhas do ponto inicial. Estas células ficam com brilho ciano enquanto esperam na fila. As células rosa já foram visitadas.",
-                    choices: ["Entendi! Vamos ver!", "Explique mais sobre a fila"]
-                },
-                {
-                    text: "A fila funciona como uma fila de supermercado: primeiro a entrar, primeiro a sair (FIFO - First In, First Out). Quando visitamos uma célula, adicionamos todos seus vizinhos não visitados à fila. Isso garante que exploremos em ordem de distância!",
-                    choices: ["Iniciar visualização", "Por que usar FIFO?"]
-                },
-                {
-                    text: "O princípio FIFO é crucial! Como adicionamos e exploramos os vizinhos em ordem, naturalmente visitamos todas as células a uma distância X antes de qualquer célula a uma distância X+1. É isso que garante encontrar o menor caminho!",
-                    choices: ["Começar demonstração!", "Mais detalhes sobre isso"]
-                },
-                {
-                    text: "Observe atentamente a animação: as células em ciano são a 'fronteira' da nossa exploração, todas à mesma distância do início. É como uma onda se expandindo uniformemente, garantindo que quando alcançamos o objetivo, é pelo menor caminho possível!",
-                    choices: ["Iniciar visualização", "Voltar à explicação anterior"],
-                    startVisualization: true
-                },
-                {
-                    text: "Incrível, não é? Viu como a exploração aconteceu em 'ondas'? Cada nova onda de células visitadas estava exatamente um passo mais distante do início que a anterior. Isso é a beleza do BFS!",
-                    choices: ["Quais são as aplicações?", "Ver visualização novamente"]
-                },
-                {
-                    text: "O BFS é usado em muitas aplicações práticas: encontrar menor caminho em redes sociais (grau de conexão entre pessoas), GPS navegação, roteamento de pacotes na internet, e até em jogos para movimentação de personagens!",
-                    choices: ["Mais aplicações", "Próximo passo"]
-                },
-                {
-                    text: "Em jogos, por exemplo, quando você clica para seu personagem se mover, frequentemente é um BFS que calcula o melhor caminho, evitando obstáculos. Em redes sociais, ele encontra suas conexões mais próximas primeiro!",
-                    choices: ["Resumo do BFS", "Continuar"]
-                },
-                {
-                    text: "Resumindo: BFS é um algoritmo que explora de forma sistemática, em ondas, garantindo encontrar o menor caminho. Usa uma fila (FIFO) para manter a ordem de exploração, e é ideal quando precisamos da solução mais próxima primeiro.",
-                    choices: ["Rever visualização", "Próxima lição"]
-                },
-                {
-                    text: "Você completou a lição sobre BFS! Agora você entende como funciona a busca em largura e por que ela é tão importante para encontrar caminhos mais curtos.",
-                    choices: ["Rever BFS", "Aprender sobre GBFS"],
-                    isFinal: true
-                }
-            ];
-
-
-
-initializeDialog() {
-                this.showDialog(0);
-                this.createMaze();
-            }
-
-            showDialog(step) {
-                this.currentStep = step;
-                this.dialogText.textContent = this.dialog[step].text;
-                this.choicesContainer.innerHTML = '';
-                
-                this.dialog[step].choices.forEach((choice, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'choice-btn';
-                    button.textContent = choice;
-                    button.onclick = () => this.makeChoice(index, step);
-                    this.choicesContainer.appendChild(button);
-                });
-
-                if (this.dialog[step].showMaze) {
-                    this.mazeContainer.style.display = 'block';
-                }
-
-                this.updateProgress();
-            }
-
-            updateProgress() {
-                const progress = (this.currentStep / (this.dialog.length - 1)) * 100;
-                this.progressBar.style.width = `${progress}%`;
-            }
-
-            makeChoice(choiceIndex, currentStep) {
-                if (this.isVisualizing) return; // Prevent interactions during visualization
-
-                const currentDialog = this.dialog[currentStep];
-
-                // Handle final dialog choices
-                if (currentDialog.isFinal) {
-                    if (choiceIndex === 0) {
-                        // Reset to review BFS
-                        this.resetVisualization();
-                        this.showDialog(0);
-                    } else {
-                        // Transition to GBFS lesson
-                        window.location.href = 'Lesson1_5.html';
-                    }
-                    return;
-                }
-
-                // Handle visualization requests
-                if (currentDialog.choices[choiceIndex].toLowerCase().includes('visualização')) {
-                    if (currentDialog.startVisualization) {
-                        this.startBFSVisualization();
-                        return;
-                    }
-                    // If they request to see visualization again in later dialogs
-                    if (this.currentStep > 8) {
-                        this.resetVisualization();
-                        this.showDialog(7); // Return to pre-visualization dialog
-                        return;
-                    }
-                }
-
-                // Normal dialog progression
-                if (this.currentStep < this.dialog.length - 1) {
-                    this.showDialog(this.currentStep + 1);
-                }
-            }
-
-            resetVisualization() {
-                this.isVisualizing = false;
-                const cells = document.querySelectorAll('.maze-cell');
-                cells.forEach(cell => {
-                    cell.classList.remove('visited', 'queue', 'current');
-                    if (!cell.classList.contains('wall') && 
-                        !cell.classList.contains('start') && 
-                        !cell.classList.contains('end')) {
-                        cell.classList.add('path');
-                    }
-                });
-                this.mazeContainer.style.display = 'block';
             }
 
             createMaze() {
-                const maze = [
+                this.maze = [
                     [0, 0, 0, 1, 0, 0, 0, 0],
                     [1, 1, 0, 1, 0, 1, 1, 0],
                     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -509,71 +287,228 @@ initializeDialog() {
                 ];
 
                 this.mazeContainer.innerHTML = '';
-                for (let i = 0; i < maze.length; i++) {
-                    for (let j = 0; j < maze[i].length; j++) {
+                
+                for (let i = 0; i < this.maze.length; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'maze-row';
+                    
+                    for (let j = 0; j < this.maze[i].length; j++) {
                         const cell = document.createElement('div');
                         cell.className = 'maze-cell';
-                        cell.classList.add(maze[i][j] === 1 ? 'wall' : 'path');
+                        cell.classList.add(this.maze[i][j] === 1 ? 'wall' : 'path');
+                        
                         if (i === 0 && j === 0) cell.classList.add('start');
-                        if (maze[i][j] === 'E') cell.classList.add('end');
-                        this.mazeContainer.appendChild(cell);
+                        if (this.maze[i][j] === 'E') cell.classList.add('end');
+                        
+                        cell.dataset.row = i;
+                        cell.dataset.col = j;
+                        
+                        row.appendChild(cell);
                     }
-                    this.mazeContainer.appendChild(document.createElement('br'));
+                    
+                    this.mazeContainer.appendChild(row);
                 }
             }
+
+            dialog = [
+                {
+                    text: "Bem-vindo à nossa lição sobre Busca em Largura (BFS)! Vamos explorar como esse algoritmo funciona de forma visual e interativa.",
+                    choices: ["Começar!", "O que é BFS?"],
+                    action: "showMaze"
+                },
+                {
+                    text: "BFS é como explorar um labirinto em ondas, visitando todos os caminhos possíveis na mesma distância antes de ir mais longe.",
+                    choices: ["Como funciona?", "Ver exemplo"],
+                    action: "showMaze"
+                },
+                {
+                    text: "Vou demonstrar usando este labirinto. O quadrado verde é o início, o vermelho é o objetivo. Observe como o BFS explora em 'ondas'.",
+                    choices: ["Iniciar visualização", "Mais detalhes"],
+                    action: "visualize"
+                },
+                {
+                    text: "Observe as cores: Rosa são células já visitadas, ciano são células na fila de espera, e o rosa brilhante é a célula atual.",
+                    choices: ["Continuar visualização", "Reiniciar"],
+                    action: "continue"
+                },
+                {
+                    text: "Viu como o algoritmo explorou em ondas uniformes? Isso garante que encontramos sempre o caminho mais curto primeiro!",
+                    choices: ["Mostrar novamente", "Próximo tópico"],
+                    action: "repeat"
+                }
+            ];
 
             async startBFSVisualization() {
                 if (this.isVisualizing) return;
                 this.isVisualizing = true;
                 
-                // Reset the visualization state first
+                // Reset visualization state
                 this.resetVisualization();
                 
-                const cells = document.querySelectorAll('.maze-cell');
-                const size = 8;
                 const queue = [[0, 0]];
                 const visited = new Set();
+                const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
                 
                 while (queue.length > 0 && this.isVisualizing) {
                     const [row, col] = queue.shift();
-                    const index = row * size + col;
+                    const currentCell = this.getCellElement(row, col);
                     
-                    if (!cells[index].classList.contains('wall') && !visited.has(index)) {
-                        cells[index].classList.add('visited');
-                        visited.add(index);
+                    if (!this.isWall(row, col) && !visited.has(`${row},${col}`)) {
+                        // Mark as visited
+                        visited.add(`${row},${col}`);
+                        currentCell.classList.add('visited');
                         
                         // Highlight current cell
-                        cells[index].classList.add('current');
-                        await new Promise(resolve => setTimeout(resolve, 300));
-                        cells[index].classList.remove('current');
+                        currentCell.classList.add('current');
+                        await this.delay(300);
+                        currentCell.classList.remove('current');
                         
-                        const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+                        // Check if reached end
+                        if (this.maze[row][col] === 'E') {
+                            break;
+                        }
+                        
+                        // Add neighbors to queue
                         for (const [dr, dc] of directions) {
                             const newRow = row + dr;
                             const newCol = col + dc;
-                            const newIndex = newRow * size + newCol;
                             
-                            if (newRow >= 0 && newRow < size && 
-                                newCol >= 0 && newCol < size && 
-                                !cells[newIndex].classList.contains('wall') && 
-                                !visited.has(newIndex)) {
+                            if (this.isValidCell(newRow, newCol) && 
+                                !this.isWall(newRow, newCol) && 
+                                !visited.has(`${newRow},${newCol}`)) {
                                 queue.push([newRow, newCol]);
-                                cells[newIndex].classList.add('queue');
+                                const neighborCell = this.getCellElement(newRow, newCol);
+                                neighborCell.classList.add('queue');
                             }
                         }
                     }
                 }
-
+                
                 this.isVisualizing = false;
-                // After visualization completes, progress dialog if not in review mode
-                if (this.currentStep === 7) {
-                    setTimeout(() => this.showDialog(8), 1000);
+                if (this.currentStep === 2) {
+                    setTimeout(() => this.showDialog(3), 1000);
                 }
+            }
+
+            getCellElement(row, col) {
+                return this.mazeContainer.children[row].children[col];
+            }
+
+            isWall(row, col) {
+                return this.maze[row][col] === 1;
+            }
+
+            isValidCell(row, col) {
+                return row >= 0 && row < this.MAZE_SIZE && col >= 0 && col < this.MAZE_SIZE;
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            resetVisualization() {
+                const cells = this.mazeContainer.querySelectorAll('.maze-cell');
+                cells.forEach(cell => {
+                    cell.classList.remove('visited', 'queue', 'current');
+                    if (!cell.classList.contains('wall') && 
+                        !cell.classList.contains('start') && 
+                        !cell.classList.contains('end')) {
+                        cell.classList.add('path');
+                    }
+                });
+            }
+
+            showDialog(step) {
+                this.currentStep = step;
+                const dialog = this.dialog[step];
+                
+                this.dialogText.textContent = dialog.text;
+                this.choicesContainer.innerHTML = '';
+                
+                dialog.choices.forEach((choice, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'choice-btn';
+                    button.textContent = choice;
+                    button.onclick = () => this.handleChoice(choice, index);
+                    this.choicesContainer.appendChild(button);
+                });
+
+                if (dialog.action === "showMaze") {
+                    this.mazeContainer.style.display = 'block';
+                }
+
+                this.updateProgress();
+            }
+
+            handleChoice(choice, index) {
+                const currentDialog = this.dialog[this.currentStep];
+
+                // Handle special actions
+                switch (currentDialog.action) {
+                    case "visualize":
+                        if (choice.toLowerCase().includes("visualização")) {
+                            this.startBFSVisualization();
+                            return;
+                        }
+                        break;
+                        
+                    case "continue":
+                        if (choice.toLowerCase().includes("continuar")) {
+                            this.startBFSVisualization();
+                            return;
+                        }
+                        if (choice.toLowerCase().includes("reiniciar")) {
+                            this.resetVisualization();
+                            this.showDialog(2);
+                            return;
+                        }
+                        break;
+                        
+                    case "repeat":
+                        if (choice.toLowerCase().includes("novamente")) {
+                            this.resetVisualization();
+                            this.showDialog(2);
+                            return;
+                        }
+                        // Progress to next topic
+                        if (choice.toLowerCase().includes("próximo")) {
+                            window.location.href = 'nextLesson.html';
+                            return;
+                        }
+                        break;
+                }
+
+                // Default progression
+                if (this.currentStep < this.dialog.length - 1) {
+                    // Progress based on choice
+                    if (index === 0) {
+                        // First choice usually progresses
+                        this.showDialog(this.currentStep + 1);
+                    } else {
+                        // Second choice might show additional info
+                        if (this.currentStep > 0) {
+                            this.showDialog(this.currentStep);
+                        } else {
+                            this.showDialog(this.currentStep + 1);
+                        }
+                    }
+                }
+            }
+
+            updateProgress() {
+                const progress = (this.currentStep / (this.dialog.length - 1)) * 100;
+                this.progressBar.style.width = `${progress}%`;
+            }
+
+            initializeDialog() {
+                this.showDialog(0);
             }
         }
 
-        // Initialize the dialog system
-        const dialogSystem = new DialogSystem();
+        // Initialize the dialog system when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const dialogSystem = new DialogSystem();
+        });
     </script>
 </body>
 </html>
