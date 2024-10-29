@@ -203,9 +203,10 @@
                     if (maze[y][x] === 1) {
                         mazeCtx.fillStyle = '#333';
                         mazeCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-                    } else if (x === 6 && y === 6) {
-                        // Make the last white square invisible
-                        continue;
+                    } else if (x === 1 && y === 1) {
+                        // Make the square below the start point invisible by drawing it as part of the wall
+                        mazeCtx.fillStyle = '#333';
+                        mazeCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                     } else {
                         mazeCtx.fillStyle = '#fff';
                         mazeCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
