@@ -1,394 +1,315 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Learning Platform</title>
+    <title>ARIA: Missão Busca Gulosa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         :root {
-            --primary: #0ff;
-            --secondary: #f0f;
-            --accent: #0f0;
-            --bg-dark: #000813;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --neon-pink: #ff69b4;
+            --neon-blue: #00ffff;
+            --dark-space: #0a0a2a;
+            --cyber-purple: #9933ff;
         }
 
         body {
-            background-color: var(--bg-dark);
-            min-height: 100vh;
-            min-height: 100dvh;  /* Added for mobile viewport height */
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-space);
             color: white;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Rest of your existing styles remain exactly the same */
-        .cyber-grid {
-            position: fixed;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background-image: 
-                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-            transform: perspective(500px) rotateX(60deg);
-            animation: grid-move 20s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes grid-move {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
         }
 
         .container {
-            width: 100%;
-            max-width: 1400px;
-            height: 100vh;
-            height: 100dvh;  /* Added for mobile viewport height */
-            padding: 2rem;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            z-index: 1;
-        }
-
-        /* All your other existing styles remain exactly the same */
-        .title {
-            text-align: center;
-            font-size: 4.5rem;
-            font-weight: 900;
-            margin-bottom: 3rem;
-            text-transform: uppercase;
-            position: relative;
-            letter-spacing: 4px;
-        }
-
-        .title span {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 
-                0 0 20px rgba(0, 255, 255, 0.5),
-                0 0 40px rgba(0, 255, 255, 0.3),
-                0 0 60px rgba(0, 255, 255, 0.1);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .menu-container {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
             max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 3em;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+            margin: 0;
+            opacity: 0;
+        }
+
+        .aria-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
             margin: 0 auto;
         }
 
-        .menu-item {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            text-decoration: none;
-            perspective: 1000px;
-        }
-
-        .menu-card {
+        .aria {
             width: 100%;
             height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .menu-item:hover .menu-card {
-            transform: rotateY(180deg);
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 1.5rem;
-            background: rgba(0, 255, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.1);
-            border-radius: 15px;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        .card-front {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-        }
-
-        .card-back {
-            background: rgba(255, 0, 255, 0.1);
-            transform: rotateY(180deg);
-            backdrop-filter: blur(10px);
-        }
-
-        .card-face::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                transparent, 
-                rgba(0, 255, 255, 0.3), 
-                transparent 30%
-            );
-            animation: rotate 4s linear infinite;
-        }
-
-        .card-face::after {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 12px;
-            z-index: 0;
-        }
-
-        .card-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-            text-shadow: 0 0 10px var(--primary);
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .card-description {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-align: center;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes glow {
-            0% { filter: brightness(100%) blur(0px); }
-            100% { filter: brightness(150%) blur(1px); }
-        }
-
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 255, 255, 0.02) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            animation: scanline 10s linear infinite;
-        }
-
-        @keyframes scanline {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(100vh); }
-        }
-
-        .orbital-particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .orbital {
-            position: absolute;
+            background: linear-gradient(45deg, var(--neon-pink), var(--cyber-purple));
             border-radius: 50%;
-            border: 1px solid rgba(0, 255, 255, 0.1);
-            animation: orbit 20s linear infinite;
+            position: relative;
+            opacity: 0;
         }
 
-        @keyframes orbit {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .aria-eyes {
+            position: absolute;
+            top: 40%;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
         }
 
-        @media (max-width: 1200px) {
-            .menu-container {
-                gap: 1rem;
-            }
-            .menu-item {
-                width: 160px;
-                height: 160px;
-            }
-            .title {
-                font-size: 3.5rem;
-            }
+        .eye {
+            width: 20px;
+            height: 20px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-blue);
         }
 
-        /* Added fullscreen button style */
-        #fullscreen-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid var(--primary);
-            color: var(--primary);
+        .content-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            z-index: 1000;
             transition: all 0.3s ease;
         }
 
-        #fullscreen-btn:hover {
-            background: rgba(0, 255, 255, 0.2);
+        .grid-cell:hover {
+            background: var(--neon-pink);
+            transform: scale(1.1);
+        }
+
+        .dialog {
+            background: rgba(255, 105, 180, 0.1);
+            border: 2px solid var(--neon-pink);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            opacity: 0;
+        }
+
+        .dialog::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            width: 20px;
+            height: 20px;
+            background: var(--dark-space);
+            border-left: 2px solid var(--neon-pink);
+            border-top: 2px solid var(--neon-pink);
+            transform: rotate(45deg);
+        }
+
+        .button {
+            background: linear-gradient(45deg, var(--neon-pink), var(--cyber-purple));
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
-    <div class="cyber-grid"></div>
-    <div class="scanline"></div>
-    <div class="orbital-particles" id="orbitals"></div>
-    <button id="fullscreen-btn">Fullscreen</button>
-
+    <div class="stars" id="stars"></div>
     <div class="container">
-        <!-- Your existing content remains exactly the same -->
-        <h1 class="title"><span>AI Learning Platform</span></h1>
-        
-        <div class="menu-container">
-            <!-- All your menu items remain exactly the same -->
-            <a href="search.html" class="menu-item">
-                <div class="menu-card">
-                    <div class="card-face card-front">
-                        <div class="card-content">
-                            <div class="card-icon">🔍</div>
-                            <h2 class="card-title">Search</h2>
-                        </div>
-                    </div>
-                    <div class="card-face card-back">
-                        <div class="card-content">
-                            <p class="card-description">Master AI search algorithms</p>
-                        </div>
-                    </div>
+        <div class="header">
+            <h1 class="title">ARIA: Missão Busca Gulosa</h1>
+        </div>
+
+        <div class="aria-container">
+            <div class="aria floating">
+                <div class="aria-eyes">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
                 </div>
-            </a>
-            <!-- Rest of your menu items remain exactly the same -->
+            </div>
+        </div>
+
+        <div class="dialog">
+            <p>Olá, humano! Eu sou ARIA, sua guia pela fascinante jornada da Busca Gulosa!</p>
+            <p>Vamos explorar juntos como os algoritmos de busca podem nos ajudar a encontrar o melhor caminho através do espaço-tempo! 🚀</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Fase 1: Entendendo a Busca Gulosa</h2>
+            <p>A Busca Gulosa é como navegar pelo espaço usando um radar especial. Sempre escolhemos o caminho que parece mais promissor no momento!</p>
+            <div class="grid-container" id="demoGrid">
+                <!-- Grid will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Fase 2: Missão Espacial</h2>
+            <p>Vamos realizar uma missão! Precisamos encontrar o caminho mais eficiente até a estação espacial.</p>
+            <button class="button" onclick="startMission()">Iniciar Missão</button>
         </div>
     </div>
 
     <script>
-        // Create orbital particles
-        const orbitalsContainer = document.getElementById('orbitals');
-        const orbitalCount = 5;
-
-        for (let i = 0; i < orbitalCount; i++) {
-            const orbital = document.createElement('div');
-            orbital.className = 'orbital';
-            
-            const size = 300 + (i * 100);
-            orbital.style.width = size + 'px';
-            orbital.style.height = size + 'px';
-            
-            orbital.style.left = `calc(50% - ${size/2}px)`;
-            orbital.style.top = `calc(50% - ${size/2}px)`;
-            
-            orbital.style.animationDuration = (20 + i * 5) + 's';
-            orbital.style.transform = `rotate(${i * (360/orbitalCount)}deg)`;
-            
-            orbitalsContainer.appendChild(orbital);
-        }
-
-        // Fullscreen functionality
-        function toggleFullscreen() {
-            if (!document.fullscreenElement && 
-                !document.mozFullScreenElement && 
-                !document.webkitFullscreenElement && 
-                !document.msFullscreenElement) {
-                // Request fullscreen
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) {
-                    document.documentElement.msRequestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) {
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                }
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
+        // Create stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                starsContainer.appendChild(star);
             }
         }
 
-        // Attach fullscreen button click handler
-        document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+        // Initial animations
+        function initialAnimations() {
+            anime({
+                targets: '.title',
+                opacity: [0, 1],
+                translateY: [-50, 0],
+                duration: 2000,
+                easing: 'easeOutExpo'
+            });
 
-        // Auto-request fullscreen on page load (note: this must be triggered by a user interaction on most browsers)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Try to request fullscreen automatically
-            const tryFullscreen = () => {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen().catch(() => {
-                        // Fullscreen request failed - button is still available
-                    });
-                }
-            };
+            anime({
+                targets: '.aria',
+                opacity: [0, 1],
+                scale: [0, 1],
+                duration: 1500,
+                easing: 'easeOutElastic'
+            });
+
+            anime({
+                targets: '.dialog',
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 1000,
+                delay: 1000,
+                easing: 'easeOutExpo'
+            });
+
+            anime({
+                targets: '.content-section',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 1000,
+                delay: anime.stagger(200, {start: 1500}),
+                easing: 'easeOutExpo'
+            });
+        }
+
+        // Create grid for demonstration
+        function createGrid() {
+            const grid = document.getElementById('demoGrid');
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.setAttribute('data-index', i);
+                cell.addEventListener('click', cellClick);
+                grid.appendChild(cell);
+            }
+        }
+
+        // Handle cell click
+        function cellClick(e) {
+            const cell = e.target;
+            anime({
+                targets: cell,
+                background: [
+                    { value: '#ff69b4', duration: 200 },
+                    { value: 'rgba(255, 255, 255, 0.1)', duration: 200 }
+                ],
+                scale: [
+                    { value: 1.2, duration: 100 },
+                    { value: 1, duration: 100 }
+                ],
+                easing: 'easeInOutQuad'
+            });
+        }
+
+        // Start mission animation
+        function startMission() {
+            const path = [2, 7, 12, 17, 22]; // Example path
+            let delay = 0;
             
-            // Attempt fullscreen on first user interaction
-            const handleFirstInteraction = () => {
-                tryFullscreen();
-                // Remove the event listeners after first interaction
-                document.removeEventListener('click', handleFirstInteraction);
-                document.removeEventListener('touchstart', handleFirstInteraction);
-                document.removeEventListener('keydown', handleFirstInteraction);
-            };
+            path.forEach((cellIndex) => {
+                const cell = document.querySelector(`[data-index="${cellIndex}"]`);
+                anime({
+                    targets: cell,
+                    background: '#ff69b4',
+                    scale: [1, 1.2, 1],
+                    duration: 1000,
+                    delay: delay,
+                    easing: 'easeInOutQuad'
+                });
+                delay += 500;
+            });
+        }
 
-            // Add event listeners for first interaction
-            document.addEventListener('click', handleFirstInteraction);
-            document.addEventListener('touchstart', handleFirstInteraction);
-            document.addEventListener('keydown', handleFirstInteraction);
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            createGrid();
+            initialAnimations();
         });
     </script>
 </body>
